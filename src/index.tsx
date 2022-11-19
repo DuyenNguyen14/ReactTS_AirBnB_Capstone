@@ -72,14 +72,16 @@ root.render(
               </React.Suspense>
             }
           ></Route>
-          <Route
-            path="roomlist"
-            element={
-              <React.Suspense fallback={<Loading />}>
-                <RoomList />
-              </React.Suspense>
-            }
-          ></Route>
+          <Route path="roomlist">
+            <Route
+              path=":locationid"
+              element={
+                <React.Suspense fallback={<Loading />}>
+                  <RoomList />
+                </React.Suspense>
+              }
+            ></Route>
+          </Route>
         </Route>
         {/* home template */}
 
@@ -99,7 +101,7 @@ root.render(
         {/* admin template */}
         <Route>
           <Route path="admin" element={<AdminTemplate />}>
-              <Route index element={<HomeAdmin />}></Route>
+            <Route index element={<HomeAdmin />}></Route>
             <Route path="users" element={<UserManagement />}></Route>
             <Route path="locations" element={<LocationManagement />}></Route>
             <Route path="rooms" element={<RoomManagement />}></Route>

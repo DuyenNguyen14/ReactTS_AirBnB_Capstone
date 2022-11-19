@@ -19,6 +19,7 @@ export default function Home({}: Props) {
   );
 
   const [locationList, setLocationList] = useState<Location[]>([]);
+  console.log({ locationList });
 
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState<number | null>(8);
@@ -45,9 +46,12 @@ export default function Home({}: Props) {
     if (arrLocations.length > 0) {
       setLoading(true);
       timeout = setTimeout(() => {
-        setLocationList((prevState) => [...prevState, ...arrLocations]);
+        setLocationList((prevState) => {
+          console.log({ prevState });
+          return [...prevState, ...arrLocations];
+        });
         setLoading(false);
-      }, 200);
+      }, 1000);
     }
     return () => {
       if (timeout) {

@@ -13,7 +13,7 @@ export default function LocationCard({ location }: Props) {
 
   return (
     <div className="location-card">
-      <NavLink to={`/location/${location.id}`}>
+      <NavLink to={`/roomlist/${location.id}`}>
         <div className="location-img">
           <LazyLoadImage
             src={location.hinhAnh}
