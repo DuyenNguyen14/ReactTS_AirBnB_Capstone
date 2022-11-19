@@ -8,11 +8,11 @@
 }
 
 .container {
-  max-width: 1199px !important;
-  width: 80%;
+  max-width: 1265px !important;
+  width: 95%;
 
-  @include res-down($sm-max) {
-    width: 97%;
+  @include res-between($sm-min, $lg-max) {
+    width: 90%;
   }
 }
 

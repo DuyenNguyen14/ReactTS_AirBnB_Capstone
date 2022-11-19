@@ -1,0 +1,47 @@
+.location-card {
+  margin-bottom: 18px;
+
+  a {
+    width: 100%;
+
+    .location-img {
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      color: #fff;
+      object-fit: cover;
+      height: 300px;
+
+      span {
+        height: 100%;
+        width: 100%;
+
+        img {
+          height: 100%;
+          width: 100%;
+        }
+      }
+
+      .location-img__icon {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        font-size: 25px;
+      }
+    }
+
+    .location-info {
+      padding: 10px 0;
+
+      h4 {
+        @include text($text-base, $text-semibold);
+        margin-bottom: 5px;
+      }
+
+      p {
+        @include text(0.875rem, $text-regular, $text-c1-gray);
+        margin: 0;
+      }
+    }
+  }
+}

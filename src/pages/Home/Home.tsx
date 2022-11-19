@@ -1,47 +1,95 @@
-import React, { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Banner from "../../components/Banner/Banner";
-import Carousel from "../../components/Carousel/Carousel";
-import HomeLocationItem from "../../components/HomeLocationItem/HomeLocationItem";
 import Loading from "../../components/Loading/Loading";
+import LocationCard from "../../components/LocationCard/LocationCard";
+import { useWindowWidth } from "../../Hooks/useWindowWidth";
 import { AppDispatch, RootState } from "../../redux/configStore";
-import { getLocationsApi } from "../../redux/reducers/locationsReducer";
+import {
+  getLocationPaginationApi,
+  Location,
+} from "../../redux/reducers/locationsReducer";
+
+let timeout: ReturnType<typeof setTimeout>;
 
 type Props = {};
 
 export default function Home({}: Props) {
-  const { arrLocations } = useSelector(
+  const { arrLocations, totalRow } = useSelector(
     (state: RootState) => state.locationsReducer
   );
-  console.log(arrLocations);
+
+  const [locationList, setLocationList] = useState<Location[]>([]);
+
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState<number | null>(8);
+  const [loading, setLoading] = useState(false);
+
+  const observer = useRef<IntersectionObserver>();
+  const lastLocationCardRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && totalRow !== locationList.length) {
+          setPageIndex((prevPageIndex) => prevPageIndex + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading]
+  );
 
   const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getLocationsApi());
-  }, []);
+    if (arrLocations.length > 0) {
+      setLoading(true);
+      timeout = setTimeout(() => {
+        setLocationList((prevState) => [...prevState, ...arrLocations]);
+        setLoading(false);
+      }, 200);
+    }
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [arrLocations]);
+
+  useEffect(() => {
+    if (pageSize) {
+      dispatch(getLocationPaginationApi(pageIndex, pageSize, null));
+    }
+  }, [pageIndex, pageSize]);
 
   return (
-    <div className="home">
-      <Banner />
-      <div className="nearest-locations-list">
-        <div className="container">
-          <h2>Khám phá những điểm đến gần đây</h2>
-          <div className="nearest-locations__content row">
-            {arrLocations?.map((location) => {
-              return location.hinhAnh !== "" ||
-                location.tenViTri.length >= 10 ? (
-                <div className="col-6 col-md-4 col-lg-3" key={location.id}>
-                  <HomeLocationItem location={location} />
+    <div className="container py-5">
+      <div className="row">
+        {locationList?.map((location, index) => {
+          if (locationList.length === index + 1) {
+            return (
+              <>
+                <div
+                  ref={lastLocationCardRef}
+                  key={location.id}
+                  className="col-12 col-sm-6 col-lg-4 col-xl-3"
+                >
+                  <LocationCard location={location} />
                 </div>
-              ) : (
-                ""
-              );
-            })}
-          </div>
-        </div>
+              </>
+            );
+          }
+          return (
+            <div
+              key={location.id}
+              className="col-12 col-sm-6 col-lg-4 col-xl-3"
+            >
+              <LocationCard location={location} />
+            </div>
+          );
+        })}
+        {locationList.length === totalRow ? "" : <Loading />}
       </div>
-      <Carousel />
     </div>
   );
 }

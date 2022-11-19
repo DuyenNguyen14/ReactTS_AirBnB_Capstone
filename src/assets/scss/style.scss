@@ -6,8 +6,6 @@
 @import "./base/base";
 
 // components (buttons, carousel,...)
-@import "./components/banner";
-@import "./components/carousel";
 @import "./components/button";
 @import "./components/commentCard";
 @import "./components/roomBookingBox";
@@ -16,11 +14,11 @@
 @import "./components/sideBar";
 @import "./components/navBar";
 @import "../../pages/Admin/Room/roomAddNewForm";
+@import "../../components/LocationCard/locationCard";
 
 // layouts
 @import "./layouts/header";
 @import "./layouts/footer";
-@import "./layouts/homeLocationItem";
 @import "./layouts/roomHeading";
 @import "./layouts/roomNavBarSmall";
 @import "./layouts/roomDetailContent";
