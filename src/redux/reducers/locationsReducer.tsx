@@ -77,7 +77,7 @@ export const getLocationsApi = () => {
   };
 };
 
-export const getLocationByIdApi = (locationId: number) => {
+export const getLocationByIdApi = (locationId: string | undefined | number) => {
   return async (dispatch: AppDispatch) => {
     try {
       const result = await http.get(`/vi-tri/${locationId}`);

@@ -5,14 +5,16 @@ import roomReducer from "./reducers/roomReducer";
 import positionReducer from "./reducers/positionReducer";
 import userReducer from "./reducers/userReducer";
 import signInReducer from "./reducers/signInReducer";
+import authReducer from "./reducers/authReducer";
 export const store = configureStore({
   reducer: {
     locationsReducer,
     roomReducer,
     positionReducer,
     commentReducer,
-    userReducer, 
-    signInReducer
+    userReducer,
+    signInReducer,
+    authReducer,
   },
 });
 

@@ -1,20 +1,28 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { signInApi } from "../../redux/reducers/signInReducer";
-import { useDispatch } from "react-redux";
-import { getStore, getStoreJSON } from "./../../util/setting";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./../../redux/configStore";
+import { signIn } from "../../redux/reducers/authReducer";
+import useLocationPathname from "../../Hooks/useLocationPathname";
+import { useEffect } from "react";
+import { openNotificationWithIcon } from "../../util/notification";
 import { history } from "../../index";
+import { getStoreJSON } from "../../util/setting";
 
 type Props = {};
 
 export default function SignIn({}: Props) {
-  const userLogin = getStoreJSON("userLogin");
+  const { user, isLoggedIn } = useSelector(
+    (state: RootState) => state.authReducer
+  );
+  console.log(isLoggedIn);
   const navigate = useNavigate();
+
   const dispatch: AppDispatch = useDispatch();
+
+  const location = useLocationPathname();
+
   const formik = useFormik<{
     email: string;
     password: string;
@@ -24,10 +32,7 @@ export default function SignIn({}: Props) {
       password: "",
     },
     onSubmit: async (values) => {
-      const action = signInApi(values);
-      dispatch(action)
-      navigate('/');
-      dispatch(action);
+      dispatch(signIn(values));
     },
     validationSchema: Yup.object().shape({
       email: Yup.string()
@@ -38,21 +43,16 @@ export default function SignIn({}: Props) {
         .min(8, "Password must have at least 8 characters"),
     }),
   });
-  
 
   useEffect(() => {
-    // if (userLogin) {
-    //   navigate("/")
-    // } else {
-    //   navigate("/signin");
-    // }
-    !userLogin && navigate("/signin")
-    if (userLogin) {
-      navigate("/");
-    } else {
-      navigate("/signin");
+    if (isLoggedIn) {
+      openNotificationWithIcon("success", "Đăng nhập thành công!", "");
+      const prevState = getStoreJSON("prevLocation");
+      history.push(prevState);
+    } else if (isLoggedIn === false) {
+      openNotificationWithIcon("error", "Sai email hoặc mật khẩu!", "");
     }
-  }, [userLogin]);
+  }, [isLoggedIn]);
 
   return (
     <div className="container">
@@ -61,7 +61,7 @@ export default function SignIn({}: Props) {
           <div className="card border-0 shadow rounded-3 my-5">
             <div className="card-body p-4 p-sm-5">
               <h5 className="card-title text-center mb-5   titleSignIn">
-                Sign In
+                Đăng nhập
               </h5>
               <h3>Welcome to Airbnb</h3>
               <form onSubmit={formik.handleSubmit}>
@@ -81,7 +81,7 @@ export default function SignIn({}: Props) {
                   )}
                 </div>
                 <div className="form-group mb-3">
-                  <label className="my-1">Password</label>
+                  <label className="my-1">Mật khẩu</label>
                   <input
                     type="password"
                     className="form-control"
@@ -96,10 +96,17 @@ export default function SignIn({}: Props) {
                   )}
                 </div>
                 <div className="d-grid">
-                  <button className="  btn-login  fw-bold" type="submit">
+                  <button className="btn-login fw-bold" type="submit">
                     Sign In
                   </button>
                 </div>
+                <hr />
+                <strong>
+                  Chưa có tài khoản?{" "}
+                  <NavLink to="/signup" className="d-inline text-primary">
+                    Đăng ký
+                  </NavLink>
+                </strong>
               </form>
             </div>
           </div>

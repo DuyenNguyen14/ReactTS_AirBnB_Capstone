@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../components/Loading/Loading";
-import LocationCard from "../../components/LocationCard/LocationCard";
-import { useWindowWidth } from "../../Hooks/useWindowWidth";
+import LocationCard from "../../components/Card/LocationCard";
 import { AppDispatch, RootState } from "../../redux/configStore";
 import {
   getLocationPaginationApi,
   Location,
 } from "../../redux/reducers/locationsReducer";
+import useLocationPathname from "../../Hooks/useLocationPathname";
 
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -19,7 +19,6 @@ export default function Home({}: Props) {
   );
 
   const [locationList, setLocationList] = useState<Location[]>([]);
-  console.log({ locationList });
 
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState<number | null>(8);
@@ -51,7 +50,7 @@ export default function Home({}: Props) {
           return [...prevState, ...arrLocations];
         });
         setLoading(false);
-      }, 1000);
+      }, 600);
     }
     return () => {
       if (timeout) {
@@ -65,6 +64,8 @@ export default function Home({}: Props) {
       dispatch(getLocationPaginationApi(pageIndex, pageSize, null));
     }
   }, [pageIndex, pageSize]);
+
+  useLocationPathname();
 
   return (
     <div className="container py-5">

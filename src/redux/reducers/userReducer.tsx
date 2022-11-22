@@ -1,18 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Await } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AppDispatch } from "../configStore";
-import { getUserInfoAction, setUserLogin } from "./signInReducer";
-import {
-  ACCESS_TOKEN,
-  setStore,
-  setStoreJSON,
-  USER_LOGIN,
-  getStore,
-  http,
-  clearLocalStorage,
-  getStoreJSON,
-} from "./../../util/setting";
+import { setStoreJSON, USER_LOGIN, http } from "./../../util/setting";
 
 export interface User {
   id: number;
@@ -23,7 +12,7 @@ export interface User {
   birthday: string;
   avatar: string;
   gender: boolean;
-  role: string;
+  role: "USER" | "ADMIN";
 }
 
 export interface RentedRoom {
@@ -49,7 +38,7 @@ type UserState = {
   arrUsers: User[];
   totalRow: number;
   editUser: any;
-  userInfo: any;
+  userInfo: User;
   rentedRoom: RentedRoom[];
 };
 
@@ -58,7 +47,7 @@ const initialState: UserState = {
   totalRow: 0,
   editUser: {},
   rentedRoom: [],
-  userInfo: {},
+  userInfo: {} as User,
 };
 
 const userReducer = createSlice({
@@ -77,7 +66,7 @@ const userReducer = createSlice({
     getRentedRoom: (state: UserState, action: PayloadAction<RentedRoom[]>) => {
       state.rentedRoom = action.payload;
     },
-    setUserInfo: (state: UserState, action: PayloadAction<User[]>) => {
+    setUserInfo: (state: UserState, action: PayloadAction<User>) => {
       state.userInfo = action.payload;
     },
   },

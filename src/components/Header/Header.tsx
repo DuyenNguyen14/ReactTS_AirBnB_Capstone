@@ -1,8 +1,5 @@
-import React, { useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
-import { RootState } from "../../redux/configStore";
-import { getStoreJSON } from "../../util/setting";
+import { useRef, useState } from "react";
+import { NavLink, useSearchParams } from "react-router-dom";
 import Button from "../Button/Button";
 import Dropdown from "./Dropdown";
 
@@ -10,21 +7,17 @@ const logo = require("../../assets/img/airbnb-logo.png");
 type Props = {};
 
 export default function Header({}: Props) {
-  const { userLogin } = useSelector((state: RootState) => state.signInReducer);
-
   const [isClicked, setIsClicked] = useState(false);
-  const [path, setPath] = useState<string>("");
-  const navigate = useNavigate();
-  // const userLogin = getStoreJSON("userLogin");
+
   const [searchParams, setSearchParams] = useSearchParams();
+
   const keywordRef = useRef<string>("");
+
   const handleChange = (e: { target: HTMLInputElement }) => {
     const { value, id } = e.target;
     keywordRef.current = value;
     setSearchParams({ maViTri: keywordRef.current });
   };
-  // console.log(typeof(searchParams.get("maViTri")));
-  const location = `/roomlist?${searchParams.get("maViTri")}`;
 
   const showDropdown = () => setIsClicked(!isClicked);
 
@@ -48,14 +41,8 @@ export default function Header({}: Props) {
               onChange={handleChange}
               id="maViTri"
             />
-            {/* <input
-              type="text"
-              placeholder="Start your search"
-              onChange={handleChange}
-              id="maViTri"
-            /> */}
             <Button
-              path={location}
+              path="#"
               className="btn--primary btnSearch"
               onClick={() => {}}
             >
@@ -96,77 +83,9 @@ export default function Header({}: Props) {
               }`}
               onClick={showDropdown}
             >
-              {/* chua login  */}
-              {!userLogin && (
-                <>
-                  <NavLink to="/signin" className="dropdown__item">
-                    Sign in
-                  </NavLink>
-                  <NavLink to="/signup" className="dropdown__item">
-                    Sign up
-                  </NavLink>
-                </>
-              )}
-              {/* profile */}
-              {userLogin && (
-                <>
-                  <NavLink
-                    to="/profile"
-                    className="dropdown__item"
-                    onClick={() => {}}
-                  >
-                    Profile
-                  </NavLink>
-                </>
-              )}
-              <hr />
-              {/* <a href="/" className="dropdown__item">
-                Host your home
-              </a>
-              <a href="/" className="dropdown__item">
-                Host an experience
-              </a>
-              <a href="/" className="dropdown__item">
-                Help
-              </a> */}
-              {userLogin?.user?.role === "ADMIN" ? (
-                <NavLink to="/admin" className="dropdown__item">
-                  Admin Management
-                </NavLink>
-              ) : (
-                <a href="/" className="dropdown__item">
-                  Host your home
-                </a>
-              )}
-              <a href="/" className="dropdown__item">
-                Help
-              </a>
-
-              {userLogin && (
-                <>
-                  <NavLink
-                    to="/logout"
-                    className="dropdown__item"
-                    onClick={() => {
-                      //logout
-                      localStorage.removeItem("userLogin");
-                      // localStorage.removeItem(ACCESS_TOKEN);
-                      // history.push('/');
-                      navigate("/");
-                      window.location.reload();
-                    }}
-                  >
-                    Log out
-                  </NavLink>
-                </>
-              )}
-              {/* className={`dropdown__content ${
-                isClicked ? "d-block" : "d-none"
-              }`} */}
-
-              {/* <ul onClick={() => setIsClicked(false)}>
+              <ul onClick={() => setIsClicked(false)}>
                 <Dropdown />
-              </ul> */}
+              </ul>
             </div>
           </div>
         </div>

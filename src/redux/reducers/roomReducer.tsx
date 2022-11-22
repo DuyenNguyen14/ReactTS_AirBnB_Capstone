@@ -69,13 +69,13 @@ export const getAllRoomsApi = () => {
   };
 };
 
-export const getRoomsByLocationId = (locationId: undefined | string) => {
+export const getRoomsByLocationId = (locationid: undefined | string) => {
   return async (dispatch: AppDispatch) => {
     try {
       const result = await http.get(
-        `/phong-thue/lay-phong-theo-vi-tri?maViTri=${locationId}`
+        `/phong-thue/lay-phong-theo-vi-tri?maViTri=${locationid}`
       );
-
+      console.log(result.data.content);
       dispatch(setArrRooms(result.data.content));
     } catch (err) {
       console.log(err);

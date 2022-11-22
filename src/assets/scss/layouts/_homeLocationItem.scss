@@ -1,0 +1,23 @@
+.nearest-location__item {
+  margin-top: 0.8em;
+
+  .nearest-location__item-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+
+    img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .nearest-location__item-info {
+    p {
+      @include text(0.9rem, $text-regular, $text-c1-gray);
+      margin-top: 2px;
+    }
+  }
+}

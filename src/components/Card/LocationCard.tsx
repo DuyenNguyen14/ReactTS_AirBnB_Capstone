@@ -12,16 +12,16 @@ export default function LocationCard({ location }: Props) {
   const [isHover, setIsHover] = useState(false);
 
   return (
-    <div className="location-card">
+    <div className="card">
       <NavLink to={`/roomlist/${location.id}`}>
-        <div className="location-img">
+        <div className="card-img">
           <LazyLoadImage
             src={location.hinhAnh}
             alt={location.tenViTri}
             effect="blur"
           />
           <div
-            className="location-img__icon"
+            className="card-img__icon"
             onMouseOver={() => setIsHover(true)}
             onMouseLeave={() => setIsHover(false)}
           >
@@ -32,8 +32,10 @@ export default function LocationCard({ location }: Props) {
             )}
           </div>
         </div>
-        <div className="location-info">
-          <h4>{location.tenViTri}</h4>
+        <div className="card-info">
+          <div className="card-title">
+            <h4>{location.tenViTri}</h4>
+          </div>
           <p>
             {location.tinhThanh} - {location.quocGia}
           </p>

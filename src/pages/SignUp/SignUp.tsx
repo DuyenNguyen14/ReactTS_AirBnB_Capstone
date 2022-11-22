@@ -1,71 +1,82 @@
-import React, { useState, useEffect } from "react";
-import { Formik, useFormik, FormikProps } from "formik";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useFormik } from "formik";
 import * as Yup from "yup";
-import { http } from "../../util/setting";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { AppDispatch, RootState } from "../../redux/configStore";
+import { useDispatch, useSelector } from "react-redux";
+import { setSignUpState, signUp, User } from "../../redux/reducers/authReducer";
+import { history } from "../../index";
+import { openNotificationWithIcon } from "../../util/notification";
+import { clearLocalStorage, setStoreJSON } from "../../util/setting";
+import useLocationPathname from "../../Hooks/useLocationPathname";
 
 type Props = {};
 
 export default function SignUp({}: Props) {
-  const randomNumberInRange = (min: number, max: number) => {
-    // 👇️ get number between min (inclusive) and max (inclusive)
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
+  const { signUpState } = useSelector((state: RootState) => state.authReducer);
 
-  const navigate = useNavigate();
+  const dispatch: AppDispatch = useDispatch();
 
-
-  const [num, setNum] = useState(randomNumberInRange(0, 1000000));
-
-  const formik = useFormik<{
-    id: number;
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-    birthday: string;
-    gender: string;
-    role: string;
-  }>({
+  const formik = useFormik<User>({
     initialValues: {
-      id: 0,
       name: "",
       email: "",
       password: "",
       phone: "",
       birthday: "",
-      gender: "",
-      role: "",
+      gender: true,
+      role: "USER",
     },
     onSubmit: async (values) => {
       console.log(values);
-      try {
-        let result = await http.post("auth/signup", values);
-        console.log(result.data.content);
-        alert("Create User Account Successfully !");
-      } catch (err) {
-        console.log(err);
-      }
+      await dispatch(signUp(values));
     },
     validationSchema: Yup.object().shape({
-      name: Yup.string().required("Name is required!"),
+      name: Yup.string().required("Không được để trống trường này!"),
       email: Yup.string()
-        .required("Email is required!")
-        .email("Invalid email!"),
+        .required("Không được để trống trường này!")
+        .email("Email không hợp lệ!"),
       password: Yup.string()
-        .required("Password is required!")
-        .min(8, "Password must have at least 8 characters"),
+        .required("Không được để trống trường này!")
+        .min(8, "Mật khẩu phải bao gồm 8 ký tự trở lên!"),
       phone: Yup.string()
-        .required("Phone is required!")
-        .min(10, "Phone must have at least 10 number"),
-      birthday: Yup.string().required("birthday is required!"),
+        .required("Không được để trống trường này!")
+        .min(10, "Số điện thoại phải bao gồm 10 số!"),
+      birthday: Yup.string().required("Không được để trống trường này!"),
     }),
   });
 
+  const { errors, handleChange, handleBlur, handleSubmit, setFieldValue } =
+    formik;
+
+  const handleChangeGender = (event: ChangeEvent<HTMLInputElement>) => {
+    setFieldValue("gender", event.target.value);
+  };
+
+  const handleEmailError = () => {
+    const emailInp = document.getElementById("email");
+    emailInp?.focus();
+  };
+
+  const prevLocation = useLocation();
+
   useEffect(() => {
-    setNum(randomNumberInRange(0, 1000000));
-    formik.setFieldValue("id", num);
-  }, []);
+    if (signUpState) {
+      openNotificationWithIcon("success", "Tạo tài khoản thành công!", "");
+      history.push("/signin");
+      dispatch(setSignUpState(null));
+    } else if (signUpState === false) {
+      openNotificationWithIcon(
+        "error",
+        "Email đã tồn tại!",
+        "Vui lòng đăng ký với một email khác."
+      );
+      handleEmailError();
+      dispatch(setSignUpState(null));
+    }
+  }, [signUpState]);
+
+  useLocationPathname();
 
   return (
     <div className="container">
@@ -74,148 +85,134 @@ export default function SignUp({}: Props) {
           <div className="card border-0 shadow rounded-3 my-5">
             <div className="card-body p-4 p-sm-5">
               <h5 className="card-title text-center mb-2 titleSignIn">
-                Welcome to Airbnb
+                Chào mừng đến với Airbnb
               </h5>
-              <h3 className="text-center mb-2">Create Your Account</h3>
+              <h3 className="text-center mb-2">Tạo Tài Khoản Của Bạn</h3>
 
-              <form onSubmit={formik.handleSubmit}>
+              <form onSubmit={handleSubmit}>
                 <div className="form-group mb-3">
-                  <label className="my-1">ID</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="id"
-                    placeholder="ID User"
-                    readOnly
-                    value={formik.values.id}
-                    onChange={formik.handleChange}
-                  />
-                </div>
-                <div className="form-group mb-3">
-                  <label className="my-1">Name</label>
+                  <label className="my-1" htmlFor="name">
+                    Tên tài khoản
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     id="name"
-                    placeholder="User name"
-                    onChange={formik.handleChange}
-                    style={{textTransform:'lowercase'}}
+                    placeholder="Nhập tên tài khoản"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                   />
-                  {formik.errors.name ? (
-                    <p className="text-danger mt-1">
-                      {formik.errors.name}
-                    </p>
-                  ) : (
-                    ""
+                  {errors.name && (
+                    <p className="text-danger mt-1">{errors.name}</p>
                   )}
                 </div>
                 <div className="form-group mb-3">
-                  <label className="my-1">Email</label>
+                  <label className="my-1" htmlFor="email">
+                    Email
+                  </label>
                   <input
                     type="email"
                     className="form-control"
                     id="email"
                     placeholder="name@example.com"
-                    onChange={formik.handleChange}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                   />
-                  {formik.errors.email ? (
-                    <p className="text-danger mt-1">
-                      {formik.errors.email}
-                    </p>
-                  ) : (
-                    ""
+                  {errors.email && (
+                    <p className="text-danger mt-1">{errors.email}</p>
                   )}
                 </div>
                 <div className="form-group mb-3">
-                  <label className="my-1">Phone</label>
+                  <label className="my-1" htmlFor="phone">
+                    Số điện thoại
+                  </label>
                   <input
-                    type="phone"
+                    type="tel"
                     className="form-control"
                     id="phone"
-                    placeholder="Phone"
-                    onChange={formik.handleChange}
+                    placeholder="Nhập số điện thoại"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                   />
-                  {formik.errors.phone ? (
+                  {errors.phone && (
                     <p className="text text-danger valid-notice">
-                      {formik.errors.phone}
+                      {errors.phone}
                     </p>
-                  ) : (
-                    ""
                   )}
                 </div>
                 <div className="form-group mb-3">
-                  <label className="my-1">Birthday</label>
+                  <label className="my-1" htmlFor="birthday">
+                    Ngày tháng năm sinh
+                  </label>
                   <input
-                    type="text"
+                    type="date"
                     className="form-control"
                     id="birthday"
-                    placeholder="MM/DD/YYYY"
-                    onChange={formik.handleChange}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                   />
-                  {formik.errors.birthday ? (
-                    <p className="text-danger mt-1">
-                      {formik.errors.birthday}
-                    </p>
-                  ) : (
-                    ""
+                  {errors.birthday && (
+                    <p className="text-danger mt-1">{errors.birthday}</p>
                   )}
                 </div>
                 <div className="form-group mb-3">
-                  <label className="my-1">Password</label>
+                  <label className="my-1" htmlFor="password">
+                    Mật khẩu
+                  </label>
                   <input
-                    type="text"
+                    type="password"
                     className="form-control"
                     id="password"
-                    placeholder="password"
-                    onChange={formik.handleChange}
+                    placeholder="Nhập mật khẩu"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
                   />
-                  {formik.errors.password ? (
-                    <p className="text-danger mt-1">
-                      {formik.errors.password}
-                    </p>
-                  ) : (
-                    ""
+                  {errors.password && (
+                    <p className="text-danger mt-1">{errors.password}</p>
                   )}
                 </div>
-                <div className="form-group mb-3">
-                  <label className="my-1">Role</label>
-                  <select
-                    className="form-select"
-                    aria-label="Default select example"
-                    id="role"
-                    onChange={formik.handleChange}
-                  >
-                    <option selected>Open this select role</option>
-                    <option value="ADMIN">Admin</option>
-                    <option value="USER">User</option>
-                  </select>
-                </div>
 
-                <div className="form-group mb-3">
-                  <label className="my-1">Sex</label>
-                  <select
-                    className="form-select"
-                    aria-label="Default select example"
-                    id="gender"
-                    onChange={formik.handleChange}
-                  >
-                    <option selected>Open this select role</option>
-                    <option value="true">Male</option>
-                    <option value="false">Female</option>
-                  </select>
+                <p className="my-1">Giới tính</p>
+                <div className="form-group mb-3 d-flex">
+                  <div className="input-group">
+                    <input
+                      type="radio"
+                      id="male"
+                      value="true"
+                      name="gender"
+                      onChange={handleChangeGender}
+                      defaultChecked
+                    />
+                    <label htmlFor="male" className="ms-2">
+                      Nam
+                    </label>
+                  </div>
+                  <div className="input-group">
+                    <input
+                      type="radio"
+                      id="female"
+                      value="false"
+                      name="gender"
+                      onChange={handleChangeGender}
+                    />
+                    <label htmlFor="male" className="ms-2">
+                      Nữ
+                    </label>
+                  </div>
                 </div>
 
                 <div className="d-grid">
-                  <button className="  btn-login  fw-bold" type="submit">
-                    Sign Up
+                  <button className="btn-login fw-bold" type="submit">
+                    Đăng ký
                   </button>
                 </div>
                 <hr className="my-4" />
-                <div className="d-grid">
-                  <button className="  btn-login  fw-bold" onClick={() => navigate('/signin')}>
-                    Sign In
-                  </button>
-                </div>
+                <h4>
+                  Đã có tài khoản? Đi đến trang{" "}
+                  <NavLink className="d-inline text-primary" to="/signin">
+                    Đăng nhập
+                  </NavLink>
+                </h4>
               </form>
             </div>
           </div>

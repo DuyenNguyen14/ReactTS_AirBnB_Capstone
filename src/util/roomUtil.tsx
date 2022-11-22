@@ -50,7 +50,7 @@ export const amenities: Amenities[] = [
   {
     key: "dieuHoa",
     value: false,
-    icon: "fas fa-wind",
+    icon: "fas fa-snowflake",
     name: "Điều hoà"
   },
 ];

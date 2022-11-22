@@ -6,9 +6,7 @@ import {
   setStore,
   setStoreJSON,
   USER_LOGIN,
-  getStore,
   http,
-  clearLocalStorage,
 } from "./../../util/setting";
 import { setUserInfo } from "./userReducer";
 
@@ -52,11 +50,12 @@ export const signInApi = (userLogin: UserSignIn) => {
     try {
       let result = await http.post("auth/signin", userLogin);
       console.log(result.data.content);
-      setStore(ACCESS_TOKEN, result.data.content.accessToken);
+      setStore(ACCESS_TOKEN, result.data.content.token);
       setStoreJSON(USER_LOGIN, result.data.content);
       const action = setUserLogin(result.data.content);
       dispatch(action);
       dispatch(setUserInfo(result.data.content.user));
+      console.log(result.status);
       // setUserInfo(result.data.content);
       const actionState = setStateLogin("okay");
       dispatch(actionState);

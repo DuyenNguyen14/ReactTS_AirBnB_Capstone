@@ -1,10 +1,11 @@
-.location-card {
+.card {
   margin-bottom: 18px;
+  border: none;
 
   a {
     width: 100%;
 
-    .location-img {
+    .card-img {
       border-radius: 10px;
       overflow: hidden;
       position: relative;
@@ -22,25 +23,30 @@
         }
       }
 
-      .location-img__icon {
+      .card-img__icon {
         position: absolute;
         top: 16px;
         right: 20px;
         font-size: 25px;
+        color: #fff;
       }
     }
 
-    .location-info {
+    .card-info {
       padding: 10px 0;
 
-      h4 {
-        @include text($text-base, $text-semibold);
-        margin-bottom: 5px;
+      .card-title {
+        margin: 0;
+
+        h4 {
+          @include text($text-base, $text-semibold);
+          margin-bottom: 0;
+        }
       }
 
       p {
-        @include text(0.875rem, $text-regular, $text-c1-gray);
-        margin: 0;
+        @include text($text-base, $text-light, $text-c1-gray);
+        margin-bottom: 5px;
       }
     }
   }
