@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import { AppDispatch, RootState } from "./../../../redux/configStore";
-import Pagination from "../../../components/Pagination/Pagination";
 import Add_User from "../../../components/Admin/User/Add_User";
 import Edit_User from "../../../components/Admin/User/Edit_User";
 import {
@@ -11,7 +10,7 @@ import {
   searchUserAction,
   User,
 } from "../../../redux/reducers/userReducer";
-import {Modal} from 'react-bootstrap'
+import { Modal } from "react-bootstrap";
 
 type Props = {};
 const logo = require("./../../../assets/img/airbnb-logo.png");
@@ -26,7 +25,7 @@ export default function UserManagement({}: Props) {
   const [deletAction, setDeleteAction] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openPopUp, setOpenPopUp] = useState<boolean>(false);
-  const [idUser, setIDUser] = useState<number>(1); 
+  const [idUser, setIDUser] = useState<number>(1);
   const [editAction, setEditAction] = useState<boolean>(false);
   const pageIndex = useRef("1");
   const pageSize = useRef("1");
@@ -117,21 +116,20 @@ export default function UserManagement({}: Props) {
   };
 
   const handleEdit = (id: number) => {
-     setOpenModal(true);
-     setOpenPopUp(true);
-     setIDUser(id);
+    setOpenModal(true);
+    setOpenPopUp(true);
+    setIDUser(id);
   };
 
   const handleAdd = () => {
     setOpenModal(true);
     setOpenPopUp(false);
-  }
+  };
 
   const handleCloseModal = () => {
     setOpenModal(false);
     setEditAction(true);
-  }
-
+  };
 
   useEffect(() => {
     timeout = setTimeout(() => {
@@ -141,12 +139,12 @@ export default function UserManagement({}: Props) {
       if (timeout !== null) {
         clearTimeout(timeout);
         setEditAction(false);
-        console.log('After reload: ', editAction);
+        console.log("After reload: ", editAction);
       }
     };
   }, [editAction]);
 
-  console.log('Reload Page: ', editAction);
+  console.log("Reload Page: ", editAction);
 
   return (
     <div>
@@ -181,7 +179,7 @@ export default function UserManagement({}: Props) {
               </tr>
             </thead>
             <tbody>
-              {arrUsers?.map((user:any , index:number) => {
+              {arrUsers?.map((user: any, index: number) => {
                 return (
                   <tr key={index}>
                     <td>{user?.id}</td>
@@ -235,21 +233,21 @@ export default function UserManagement({}: Props) {
           </table>
         </div>
         <div className="pagination d-flex justify-content-center">
-          <Pagination
+          {/* <Pagination
             postsPerPage={postsPerPage}
             setCurrentPage={setCurrentPage}
             totalRow={totalRow}
-          />
+          /> */}
         </div>
       </div>
       <Modal show={openModal} size="lg" className="modal-dialog-scrollable">
         <Modal.Header>
           <Modal.Title>
-              { openPopUp ? 'Edit Users Infor' : 'Add Users Infor'}
+            {openPopUp ? "Edit Users Infor" : "Add Users Infor"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            { openPopUp ? <Edit_User idUser={idUser}/> : <Add_User/>}
+          {openPopUp ? <Edit_User idUser={idUser} /> : <Add_User />}
         </Modal.Body>
         <Modal.Footer>
           <button

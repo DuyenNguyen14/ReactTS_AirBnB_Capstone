@@ -28,6 +28,7 @@ const SignUp = React.lazy(() => import("./pages/SignUp/SignUp"));
 const Profile = React.lazy(() => import("./pages/Profile/Profile"));
 const RoomList = React.lazy(() => import("./pages/RoomList/RoomList"));
 const RoomTemplate = React.lazy(() => import("./templates/RoomTemplate"));
+const Search = React.lazy(() => import("./pages/Search/Search"));
 
 export const history = createBrowserHistory({ window });
 
@@ -45,6 +46,14 @@ root.render(
             element={
               <React.Suspense fallback={<Loading />}>
                 <Home />
+              </React.Suspense>
+            }
+          ></Route>
+          <Route
+            path="search"
+            element={
+              <React.Suspense fallback={<Loading />}>
+                <Search />
               </React.Suspense>
             }
           ></Route>

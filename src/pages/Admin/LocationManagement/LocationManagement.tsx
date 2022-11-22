@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import Pagination from "../../../components/Pagination/Pagination";
 import { AppDispatch, RootState } from "./../../../redux/configStore";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -187,11 +186,11 @@ export default function LocationManagement({}: Props) {
           </table>
         </div>
         <div className="pagination d-flex justify-content-center">
-          <Pagination
+          {/* <Pagination
             postsPerPage={postsPerPage}
             setCurrentPage={setCurrentPage}
             totalRow={totalRow}
-          />
+          /> */}
         </div>
         <Modal show={openModal} size="lg" className="modal-dialog-scrollable">
           <Modal.Header>

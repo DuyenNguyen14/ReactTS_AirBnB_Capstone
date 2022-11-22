@@ -39,7 +39,10 @@ const authReducer = createSlice({
     setUser: (state: InititalState, action: PayloadAction<User>) => {
       state.user = action.payload;
     },
-    setIsLoggedIn: (state: InititalState, action: PayloadAction<boolean>) => {
+    setIsLoggedIn: (
+      state: InititalState,
+      action: PayloadAction<boolean | null>
+    ) => {
       state.isLoggedIn = action.payload;
     },
     setSignUpState: (

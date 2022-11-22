@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { User } from "../../redux/reducers/userReducer";
+import { openNotificationWithIcon } from "../../util/notification";
 import {
   ACCESS_TOKEN,
   clearLocalStorage,
@@ -16,6 +17,7 @@ export default function Dropdown({}: Props) {
   const handleLogout = () => {
     clearLocalStorage(USER_LOGIN);
     clearLocalStorage(ACCESS_TOKEN);
+    openNotificationWithIcon("success", "Đăng xuất thành công!", "");
   };
 
   const renderDropdown = () => {

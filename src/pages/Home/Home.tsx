@@ -6,6 +6,8 @@ import { AppDispatch, RootState } from "../../redux/configStore";
 import {
   getLocationPaginationApi,
   Location,
+  setArrLocations,
+  setTotalRow,
 } from "../../redux/reducers/locationsReducer";
 import useLocationPathname from "../../Hooks/useLocationPathname";
 
@@ -21,7 +23,7 @@ export default function Home({}: Props) {
   const [locationList, setLocationList] = useState<Location[]>([]);
 
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState<number | null>(8);
+  const pageSize = 8;
   const [loading, setLoading] = useState(false);
 
   const observer = useRef<IntersectionObserver>();
@@ -46,7 +48,6 @@ export default function Home({}: Props) {
       setLoading(true);
       timeout = setTimeout(() => {
         setLocationList((prevState) => {
-          console.log({ prevState });
           return [...prevState, ...arrLocations];
         });
         setLoading(false);
@@ -59,13 +60,18 @@ export default function Home({}: Props) {
     };
   }, [arrLocations]);
 
+  useLocationPathname();
+
   useEffect(() => {
-    if (pageSize) {
-      dispatch(getLocationPaginationApi(pageIndex, pageSize, null));
-    }
+    dispatch(getLocationPaginationApi(pageIndex, pageSize, null));
   }, [pageIndex, pageSize]);
 
-  useLocationPathname();
+  useEffect(() => {
+    return () => {
+      dispatch(setArrLocations([]));
+      dispatch(setTotalRow(0));
+    };
+  }, []);
 
   return (
     <div className="container py-5">

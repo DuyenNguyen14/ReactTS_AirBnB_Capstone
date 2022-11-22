@@ -31,7 +31,7 @@ export default function RoomList({}: Props) {
       <strong>{arrRooms.length} nhà trong khu vực</strong>
       <div className="room-list row py-3">
         {arrRooms?.map((room) => (
-          <div className="col-12 col-sm-6 col-md-4 col-lg-3">
+          <div key={room.id} className="col-12 col-sm-6 col-md-4 col-lg-3">
             <RoomCard room={room} location={location} />
           </div>
         ))}

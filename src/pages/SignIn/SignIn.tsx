@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./../../redux/configStore";
-import { signIn } from "../../redux/reducers/authReducer";
+import { setIsLoggedIn, signIn } from "../../redux/reducers/authReducer";
 import useLocationPathname from "../../Hooks/useLocationPathname";
 import { useEffect } from "react";
 import { openNotificationWithIcon } from "../../util/notification";
@@ -52,6 +52,9 @@ export default function SignIn({}: Props) {
     } else if (isLoggedIn === false) {
       openNotificationWithIcon("error", "Sai email hoặc mật khẩu!", "");
     }
+    return () => {
+      dispatch(setIsLoggedIn(null));
+    };
   }, [isLoggedIn]);
 
   return (

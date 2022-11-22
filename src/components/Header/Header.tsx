@@ -1,23 +1,54 @@
-import { useRef, useState } from "react";
-import { NavLink, useSearchParams } from "react-router-dom";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  NavLink,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import { AppDispatch } from "../../redux/configStore";
 import Button from "../Button/Button";
 import Dropdown from "./Dropdown";
 
 const logo = require("../../assets/img/airbnb-logo.png");
+
+let timeout: ReturnType<typeof setTimeout>;
+
 type Props = {};
 
 export default function Header({}: Props) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  let keyword = searchParams.get("keyword");
+
+  const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const dispatch: AppDispatch = useDispatch();
+
   const [isClicked, setIsClicked] = useState(false);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const keywordRef = useRef<string>("");
-
-  const handleChange = (e: { target: HTMLInputElement }) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, id } = e.target;
-    keywordRef.current = value;
-    setSearchParams({ maViTri: keywordRef.current });
+    setSearchParams({ keyword: value });
   };
+
+  const handleSearch = () => {
+    navigate(`/search?keyword=${keyword}`);
+  };
+
+  useEffect(() => {
+    if (keyword) {
+      navigate(`/search?keyword=${keyword}`);
+    }
+  }, [keyword]);
+
+  useEffect(() => {
+    if (!location.pathname.includes("/search")) {
+      const searchInp = document.getElementById("search") as HTMLInputElement;
+      searchInp.value = "";
+    }
+  }, [location.pathname]);
 
   const showDropdown = () => setIsClicked(!isClicked);
 
@@ -39,15 +70,15 @@ export default function Header({}: Props) {
               type="text"
               placeholder="Start your search"
               onChange={handleChange}
-              id="maViTri"
+              id="search"
             />
-            <Button
-              path="#"
+            <button
               className="btn--primary btnSearch"
-              onClick={() => {}}
+              type="button"
+              onClick={handleSearch}
             >
               <i className="fas fa-search"></i>
-            </Button>
+            </button>
           </div>
         </div>
         {/* middle section - search bar */}
