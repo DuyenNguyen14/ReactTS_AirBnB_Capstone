@@ -39,8 +39,12 @@ export default function Header({}: Props) {
 
   useEffect(() => {
     if (keyword) {
-      navigate(`/search?keyword=${keyword}`);
+      timeout = setTimeout(() => {
+        navigate(`/search?keyword=${keyword}`);
+      }, 1000);
     }
+
+    return () => timeout && clearTimeout(timeout);
   }, [keyword]);
 
   useEffect(() => {

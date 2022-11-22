@@ -15,7 +15,7 @@ type InitialState = {
   arrLocations: Location[];
   location: Location;
   arrLocationPageIndex: Location[];
-  totalRow: number;
+  totalRow: number | null;
   hasMore: boolean;
 };
 
@@ -23,7 +23,7 @@ const initialState: InitialState = {
   arrLocations: [],
   location: {} as Location,
   arrLocationPageIndex: [],
-  totalRow: 0,
+  totalRow: null,
   hasMore: false,
 };
 
@@ -46,7 +46,10 @@ const locationsReducer = createSlice({
     ) => {
       state.arrLocationPageIndex = action.payload;
     },
-    setTotalRow: (state: InitialState, action: PayloadAction<number>) => {
+    setTotalRow: (
+      state: InitialState,
+      action: PayloadAction<number | null>
+    ) => {
       state.totalRow = action.payload;
     },
     setHasMore: (state: InitialState, action: PayloadAction<boolean>) => {
