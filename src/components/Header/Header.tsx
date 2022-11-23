@@ -38,12 +38,11 @@ export default function Header({}: Props) {
   };
 
   useEffect(() => {
-    if (keyword) {
-      timeout = setTimeout(() => {
+    timeout = setTimeout(() => {
+      if (keyword) {
         navigate(`/search?keyword=${keyword}`);
-      }, 1000);
-    }
-
+      }
+    }, 1000);
     return () => timeout && clearTimeout(timeout);
   }, [keyword]);
 

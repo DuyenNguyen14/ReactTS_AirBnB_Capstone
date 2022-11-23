@@ -12,7 +12,7 @@ import {
 type Props = {};
 
 export default function Dropdown({}: Props) {
-  const userLogin = getStoreJSON(USER_LOGIN);
+  const userLogin: User = getStoreJSON(USER_LOGIN);
 
   const handleLogout = () => {
     clearLocalStorage(USER_LOGIN);
@@ -25,7 +25,7 @@ export default function Dropdown({}: Props) {
       return (
         <>
           <li>
-            <NavLink to="/profile" className="dropdown__item">
+            <NavLink to={`/profile/${userLogin.id}`} className="dropdown__item">
               Profile
             </NavLink>
           </li>

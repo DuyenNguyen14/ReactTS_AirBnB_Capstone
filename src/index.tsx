@@ -9,7 +9,6 @@ import {
   Routes,
   Route,
   Navigate,
-  HistoryRouterProps,
 } from "react-router-dom";
 import HomeTemplate from "./templates/HomeTemplate";
 import Loading from "./components/Loading/Loading";
@@ -18,7 +17,6 @@ import UserManagement from "./pages/Admin/User/UserManagement";
 import LocationManagement from "./pages/Admin/LocationManagement/LocationManagement";
 import RoomManagement from "./pages/Admin/Room/RoomManagement";
 import BookingManagement from "./pages/Admin/BookingManagement/BookingManagement";
-import UpdateInforUser from "./pages/Profile/UpdateInforUser";
 import AddLocation from "./components/Admin/Location/AddLocation";
 import HomeAdmin from "./pages/Admin/HomeAdmin/HomeAdmin";
 
@@ -73,14 +71,16 @@ root.render(
               </React.Suspense>
             }
           ></Route>
-          <Route
-            path="profile"
-            element={
-              <React.Suspense fallback={<Loading />}>
-                <Profile />
-              </React.Suspense>
-            }
-          ></Route>
+          <Route path="profile">
+            <Route
+              path=":userid"
+              element={
+                <React.Suspense fallback={<Loading />}>
+                  <Profile />
+                </React.Suspense>
+              }
+            ></Route>
+          </Route>
           <Route path="roomlist">
             <Route
               path=":locationid"

@@ -4,10 +4,15 @@
     // left section
     .header__logo {
       img {
-        width: 109px;
+        width: 90px;
+        transition: 0.3s;
 
-        @include res-between($sm-min, $md-max) {
-          width: 90px;
+        @include res-up($md-min) {
+          width: 109px;
+        }
+
+        @include res-down($xs-max) {
+          width: 70px;
         }
       }
     }
@@ -48,12 +53,19 @@
     // right section
     .header__right {
       .btnHost {
-        @include res-between($sm-min, $md-max) {
-          display: none;
+        display: none;
+
+        @include res-up($md-min) {
+          display: block;
         }
       }
       .btnLanguage {
         padding: 0.7em;
+        display: none;
+
+        @include res-up($md-min) {
+          display: block;
+        }
       }
 
       .user {

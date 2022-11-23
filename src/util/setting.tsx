@@ -1,5 +1,6 @@
 import axios from "axios";
 import { history } from "../index";
+import { openNotificationWithIcon } from "./notification";
 export const configs = {
   setStore: (name: string, values: any) => {
     localStorage.setItem(name, values);
@@ -48,6 +49,12 @@ export const configs = {
   },
   ACCESS_TOKEN: "accessToken",
   USER_LOGIN: "userLogin",
+  handleLogout: () => {
+    clearLocalStorage(ACCESS_TOKEN);
+    clearLocalStorage(USER_LOGIN);
+    openNotificationWithIcon("success", "Đăng xuất thành công!", "");
+    history.push("/");
+  },
 };
 
 export const {
@@ -61,6 +68,7 @@ export const {
   setStoreJSON,
   clearCookie,
   clearLocalStorage,
+  handleLogout,
 } = configs;
 
 const TOKEN_ADMIN =

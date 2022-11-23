@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "../redux/configStore";
 import { getRoomByIdApi } from "../redux/reducers/roomReducer";
 import RoomMediumScreen from "../pages/Room/RoomMediumScreen";
 import RoomSmallScreen from "../pages/Room/RoomSmallScreen";
+import useLocationPathname from "../Hooks/useLocationPathname";
 
 interface Amenities {
   [key: string]: string;
@@ -53,6 +54,8 @@ export default function Room({}: Props) {
     ) : (
       ""
     );
+
+  useLocationPathname();
 
   const width = useWindowWidth();
 

@@ -103,9 +103,7 @@ export const getLocationPaginationApi = (
           !keyword ? "" : keyword
         }`
       );
-      console.log(result.data.content.data);
       dispatch(setArrLocations(result.data.content.data));
-      // console.log(result.data.content.totalRow);
       dispatch(setTotalRow(result.data.content.totalRow));
     } catch (err) {
       console.log(err);

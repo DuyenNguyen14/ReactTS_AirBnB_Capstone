@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import LocationCard from "../../components/Card/LocationCard";
 import Loading from "../../components/Loading/Loading";
 import TablePagination from "../../components/TablePagination/TablePagination";
@@ -18,6 +18,8 @@ type Props = {};
 
 export default function Search({}: Props) {
   const [fetching, setFetching] = useState(true);
+  console.log(fetching);
+  const navigate = useNavigate();
 
   const { arrLocations, totalRow } = useSelector(
     (state: RootState) => state.locationsReducer
@@ -32,31 +34,20 @@ export default function Search({}: Props) {
   let keyword = searchParams.get("keyword");
 
   useEffect(() => {
-    dispatch(setArrLocations([]));
-    dispatch(setTotalRow(null));
-  }, []);
-
-  useEffect(() => {
     timeout = setTimeout(() => {
-      if (keyword) {
-        console.log("fetching");
-        dispatch(getLocationPaginationApi(pageIndex, pageSize, keyword));
-        setFetching(true);
-      }
-    }, 800);
+      console.log("fetching");
+      dispatch(getLocationPaginationApi(pageIndex, pageSize, keyword));
+      setFetching(false);
+    }, 1000);
+    setFetching(true);
     return () => timeout && clearTimeout(timeout);
   }, [pageIndex, pageSize, keyword]);
 
   useEffect(() => {
-    timeout = setTimeout(() => {
-      if (keyword?.trim() !== "" || totalRow) {
-        console.log("log in search", totalRow);
-        setFetching(false);
-      }
-    }, 900);
-
-    return () => timeout && clearTimeout(timeout);
-  }, [keyword, totalRow]);
+    if (!keyword || keyword.trim() === "") {
+      navigate("/");
+    }
+  }, [keyword]);
 
   useLocationPathname();
 

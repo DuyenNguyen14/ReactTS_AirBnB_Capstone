@@ -1,0 +1,75 @@
+.profile__content {
+  .profile-title {
+    h2 {
+      @include text(1.675rem, $text-bold);
+    }
+  }
+
+  .user-avatar {
+    .user-avatar__img {
+      width: 65px;
+      height: 65px;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      object-fit: cover;
+
+      img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+
+        @include res-up($md-min) {
+          width: 100px;
+          height: 100px;
+        }
+      }
+
+      @include res-up($md-min) {
+        width: 40%;
+        height: 40%;
+      }
+    }
+
+    @include res-up($md-min) {
+      padding-top: 18px;
+      border: 1px solid #dddddd;
+      border-radius: 12px 12px 0 0;
+      border-bottom: none;
+    }
+  }
+
+  .user-badge {
+    margin-top: 18px;
+
+    .user-badge__content {
+      margin-top: 18px;
+      padding: 0 18px;
+      i {
+        font-size: 2rem;
+        margin-bottom: 15px;
+      }
+
+      h4 {
+        @include text($text-xl, $text-bold);
+      }
+
+      p {
+        @include text($text-base, $text-light);
+      }
+    }
+
+    @include res-up($md-min) {
+      padding-bottom: 32px;
+      border: 1px solid #dddddd;
+      border-radius: 0 0 12px 12px;
+      border-top: none;
+      margin-top: 0;
+    }
+  }
+
+  .btnLogout {
+    width: 100%;
+    padding: 10px 0;
+  }
+}

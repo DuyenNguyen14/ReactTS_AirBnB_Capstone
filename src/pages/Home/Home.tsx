@@ -6,6 +6,8 @@ import { AppDispatch, RootState } from "../../redux/configStore";
 import {
   getLocationPaginationApi,
   Location,
+  setArrLocations,
+  setTotalRow,
 } from "../../redux/reducers/locationsReducer";
 import useLocationPathname from "../../Hooks/useLocationPathname";
 
@@ -63,6 +65,14 @@ export default function Home({}: Props) {
   useEffect(() => {
     dispatch(getLocationPaginationApi(pageIndex, pageSize, null));
   }, [pageIndex, pageSize]);
+
+  useEffect(() => {
+    return () => {
+      console.log("clear");
+      dispatch(setArrLocations([]));
+      dispatch(setTotalRow(null));
+    };
+  }, []);
 
   return (
     <div className="container py-5">

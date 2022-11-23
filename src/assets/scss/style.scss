@@ -16,7 +16,7 @@
 @import "../../pages/Admin/Room/roomAddNewForm";
 @import "../../components/Card/card";
 // layouts
-@import "./layouts/header";
+@import "../../components/Header/header";
 @import "./layouts/footer";
 @import "./layouts/roomHeading";
 @import "./layouts/roomNavBarSmall";
@@ -26,8 +26,7 @@
 @import "./pages/home";
 @import "./pages/login";
 @import "./pages/signup";
-@import "./pages/profile";
-@import "./pages/roomlist";
+@import "../../pages/Profile/profile";
 @import "./pages/updateuser";
 @import "../../pages//Admin/HomeAdmin/homeAdmin";
 

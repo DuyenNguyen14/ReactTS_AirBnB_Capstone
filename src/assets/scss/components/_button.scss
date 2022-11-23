@@ -19,7 +19,7 @@
 
 .btn--primary {
   background: $bg-primary;
-  padding: 1em 1.5em;
+  padding: 5px;
   border-radius: 10px;
   border: 1px solid transparent;
   @include text($text-base, $text-bold, $text-c1-light);
@@ -27,4 +27,10 @@
 
 .btn--primary:disabled {
   background-color: #ccc;
+}
+
+.btn--underline {
+  padding: 0;
+  text-decoration: underline;
+  @include text(0.875rem, $text-semibold);
 }

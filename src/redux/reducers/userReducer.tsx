@@ -38,7 +38,7 @@ type UserState = {
   arrUsers: User[];
   totalRow: number;
   editUser: any;
-  userInfo: User;
+  userInfo: User | null;
   rentedRoom: RentedRoom[];
 };
 
@@ -47,7 +47,7 @@ const initialState: UserState = {
   totalRow: 0,
   editUser: {},
   rentedRoom: [],
-  userInfo: {} as User,
+  userInfo: null,
 };
 
 const userReducer = createSlice({
@@ -83,6 +83,41 @@ export const {
 export default userReducer.reducer;
 
 // call api
+export const getUserById = (userId: number | string) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await http.get(`/users/${userId}`);
+      dispatch(setUserInfo(result.data.content));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
+
+export const editUserAction = (userId: number, userInfo: User) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await http.put(`users/${userId}`, { ...userInfo });
+      if (result.status === 200) {
+        Swal.fire({
+          title: "Update Successfully!",
+          icon: "success",
+          confirmButtonColor: "#44c020",
+        });
+        console.log(result.data.content);
+        dispatch(setUserInfo(result.data.content));
+        setStoreJSON(USER_LOGIN, result.data.content);
+      }
+    } catch (errors: any) {
+      Swal.fire({
+        icon: "error",
+        title: errors.response?.data.message,
+        text: `${errors.response?.data.content}`,
+      });
+    }
+  };
+};
+
 export const getUserPaginationAction = (
   pageIndex: string | null,
   pageSize: string | null,
@@ -150,29 +185,5 @@ export const getRentedRoomByEachUser = (id: number) => {
         dispatch(getRentedRoom(result.data.content));
       }
     } catch (err) {}
-  };
-};
-
-export const editUserAction = (userId: number, userInfo: any) => {
-  return async (dispatch: AppDispatch) => {
-    try {
-      const result = await http.put(`users/${userId}`, userInfo);
-      if (result.status === 200) {
-        Swal.fire({
-          title: "Update Successfully!",
-          icon: "success",
-          confirmButtonColor: "#44c020",
-        });
-        dispatch(setUserInfo(result.data.content));
-        setStoreJSON(USER_LOGIN, { user: result.data.content });
-      }
-      // console.log('result', result);
-    } catch (errors: any) {
-      Swal.fire({
-        icon: "error",
-        title: errors.response?.data.message,
-        text: `${errors.response?.data.content}`,
-      });
-    }
   };
 };

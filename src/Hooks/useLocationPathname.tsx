@@ -17,8 +17,10 @@ export default function useLocationPathname() {
     return () => {
       const prevLocation = getStoreJSON("prevLocation");
       const currLocation = getStoreJSON("currLocation");
-      if (currLocation === "/signup") {
-        console.log(currLocation);
+
+      // nếu currLocation là trang signup hoặc prevLocation giống với currLocation thì không làm gì hết
+      if (location.pathname === "/signin" || location.pathname === "/signup") {
+        setStoreJSON("currLocation", location.pathname);
       }
       if (
         prevLocation !== location.pathname &&
