@@ -1,0 +1,19 @@
+.rented-room__content {
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 6px 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 150px;
+  width: 100%;
+
+  .row {
+    height: 100%;
+    
+    .rented-room-img {
+      height: 100%;
+      
+      img {
+        height: 100%;
+      }
+    }
+  }
+}

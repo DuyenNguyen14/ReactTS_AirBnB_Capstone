@@ -173,17 +173,3 @@ export const editUserByIDAction = (id: number) => {
   };
 };
 //Call api getProfile
-
-//call rented room by each user
-
-export const getRentedRoomByEachUser = (id: number) => {
-  return async (dispatch: AppDispatch) => {
-    try {
-      if (id !== null) {
-        const result = await http.get(`/dat-phong/lay-theo-nguoi-dung/${id}`);
-        console.log(result.data.content);
-        dispatch(getRentedRoom(result.data.content));
-      }
-    } catch (err) {}
-  };
-};

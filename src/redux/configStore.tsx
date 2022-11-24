@@ -6,6 +6,7 @@ import positionReducer from "./reducers/positionReducer";
 import userReducer from "./reducers/userReducer";
 import signInReducer from "./reducers/signInReducer";
 import authReducer from "./reducers/authReducer";
+import bookingReducer from "./reducers/bookingReducer";
 export const store = configureStore({
   reducer: {
     locationsReducer,
@@ -15,6 +16,7 @@ export const store = configureStore({
     userReducer,
     signInReducer,
     authReducer,
+    bookingReducer,
   },
 });
 

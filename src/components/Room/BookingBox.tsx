@@ -57,7 +57,7 @@ export default function BookingBox({}: Props) {
         ngayDen: moment(value[0]).format("L").toString(),
         ngayDi: moment(value[1]).format("L").toString(),
         soLuongKhach: guestNum,
-        maNguoiDung: user.user.id,
+        maNguoiDung: user.id,
       };
       console.log(bookingInfo);
       dispatch(bookingApi(bookingInfo));
