@@ -17,6 +17,7 @@ import _ from "lodash";
 import RoomAdminForm from "./RoomAdminForm";
 import TablePagination from "../../../components/TablePagination/TablePagination";
 import { useParams } from "react-router-dom";
+import { User } from "../../../redux/reducers/authReducer";
 
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -60,7 +61,6 @@ export default function RoomManagement({}: Props) {
   const { arrRooms, totalRow } = useSelector(
     (state: RootState) => state.roomReducer
   );
-  console.log(totalRow);
 
   const { arrLocations } = useSelector(
     (state: RootState) => state.locationsReducer
@@ -199,15 +199,17 @@ export default function RoomManagement({}: Props) {
   };
 
   useEffect(() => {
-    dispatch(searchRoomApi(pageIndex.current, pageSize.toString(), searchTerm));
+    dispatch(
+      searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
+    );
     console.log("on mounted");
-  }, [pageIndex.current, pageSize.toString()]);
+  }, [currentPage.toString(), pageSize.toString()]);
 
   useEffect(() => {
     timeout = setTimeout(() => {
       if (searchTerm.length > 0) {
         dispatch(
-          searchRoomApi(pageIndex.current, pageSize.toString(), searchTerm)
+          searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
         );
         console.log("on search");
       }
@@ -218,7 +220,7 @@ export default function RoomManagement({}: Props) {
         console.log("unmouting");
       }
     };
-  }, [pageIndex.current, pageSize, searchTerm]);
+  }, [currentPage, pageSize, searchTerm]);
 
   useEffect(() => {
     dispatch(getLocationsApi());
@@ -250,81 +252,84 @@ export default function RoomManagement({}: Props) {
         </div>
       </form>
 
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            {tableHeaders.map((header) => (
-              <th onClick={() => changeSort(header.key)}>
-                <div className="d-flex align-items-center justify-content-between">
-                  <span>{header.label}</span>
-                  <SortButton
-                    colKey={header.key}
-                    {...{
-                      sortKey,
-                      sortOrder,
-                    }}
-                  />
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {arrRooms.length > 0 &&
-            sortedData()?.map((room) => (
-              <tr key={room.id}>
-                <td>{room.id}</td>
-                <td>{room.tenPhong}</td>
-                <td>
-                  <LazyLoadImage
-                    src={room.hinhAnh}
-                    alt={room.tenPhong}
-                    effect="blur"
-                    style={{ width: "200px" }}
-                  />
-                </td>
-                <td>
-                  {arrLocations.length > 0 && renderRoomLocation(room.maViTri)}
-                </td>
-                <td>
-                  {room.moTa.length > 100
-                    ? room.moTa.slice(0, 100) + "..."
-                    : room.moTa}
-                </td>
-                <td>${room.giaTien}</td>
-                <td>
-                  <div className="d-flex">
-                    <div className="btnEdit me-2">
-                      <button
-                        className="btn btn-outline-warning"
-                        onClick={() => {
-                          handleClickEdit(room);
-                        }}
-                      >
-                        <i className="fa fa-edit"></i>
-                      </button>
-                    </div>
-                    <div className="btnDelete">
-                      <button
-                        className="btn btn-outline-danger"
-                        onClick={() => handleDeleteRoom(room.id)}
-                      >
-                        <i className="fa fa-trash"></i>
-                      </button>
-                    </div>
+      <div className="table-responsive">
+        <table className="table table-striped table-hover">
+          <thead>
+            <tr>
+              {tableHeaders.map((header) => (
+                <th onClick={() => changeSort(header.key)}>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <span>{header.label}</span>
+                    <SortButton
+                      colKey={header.key}
+                      {...{
+                        sortKey,
+                        sortOrder,
+                      }}
+                    />
                   </div>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {arrRooms.length > 0 &&
+              sortedData()?.map((room) => (
+                <tr key={room.id}>
+                  <td>{room.id}</td>
+                  <td>{room.tenPhong}</td>
+                  <td>
+                    <LazyLoadImage
+                      src={room.hinhAnh}
+                      alt={room.tenPhong}
+                      effect="blur"
+                      style={{ width: "200px" }}
+                    />
+                  </td>
+                  <td>
+                    {arrLocations.length > 0 &&
+                      renderRoomLocation(room.maViTri)}
+                  </td>
+                  <td>
+                    {room.moTa.length > 100
+                      ? room.moTa.slice(0, 100) + "..."
+                      : room.moTa}
+                  </td>
+                  <td>${room.giaTien}</td>
+                  <td>
+                    <div className="d-flex">
+                      <div className="btnEdit me-2">
+                        <button
+                          className="btn btn-outline-warning"
+                          onClick={() => {
+                            handleClickEdit(room);
+                          }}
+                        >
+                          <i className="fa fa-edit"></i>
+                        </button>
+                      </div>
+                      <div className="btnDelete">
+                        <button
+                          className="btn btn-outline-danger"
+                          onClick={() => handleDeleteRoom(room.id)}
+                        >
+                          <i className="fa fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
       {/* table pagination */}
-      {/* <TablePagination
+      <TablePagination
         totalRow={totalRow}
         pageSize={pageSize}
         currentPage={currentPage}
-        handlePagination={handlePagination}
-      /> */}
+        setCurrentPage={setCurrentPage}
+      />
 
       {/* modal */}
       <Modal show={openModal} size="lg" className="modal-dialog-scrollable">

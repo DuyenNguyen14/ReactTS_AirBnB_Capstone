@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { history } from "../../index";
 import useLocationPathname from "../../Hooks/useLocationPathname";
 import { openNotificationWithIcon } from "../../util/notification";
@@ -8,9 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { editUserAction, getUserById } from "../../redux/reducers/userReducer";
 import { useParams } from "react-router-dom";
 import { EditInfoFormMemo } from "./EditInfoForm";
-import RentedRoom from "../../components/RentedRoom/RentedRoom";
-import { Room } from "../../redux/reducers/roomReducer";
-import { Booking } from "../../redux/reducers/bookingReducer";
+import BookedRoom from "../../components/RentedRoom/BookedRoom";
 
 type Props = {};
 
@@ -144,10 +142,12 @@ export default function Profile({}: Props) {
             <div className="col-12 col-lg-7">
               <div className="edit-info" hidden={!clickEdit && true}>
                 <hr />
-                <EditInfoFormMemo
-                  userInfo={userInfo}
-                  setClickEdit={setClickEdit}
-                />
+                {clickEdit && (
+                  <EditInfoFormMemo
+                    userInfo={userInfo}
+                    setClickEdit={setClickEdit}
+                  />
+                )}
               </div>
               <hr />
               <button
@@ -156,11 +156,8 @@ export default function Profile({}: Props) {
               >
                 Xem lịch sử đặt phòng
               </button>
-              <div
-                className="rented-room py-3"
-                hidden={!clickRentedRoom && true}
-              >
-                {clickRentedRoom ? <RentedRoom userId={userInfo.id} /> : ""}
+              <div className="rented-room py-3">
+                {clickRentedRoom ? <BookedRoom userId={userInfo.id} /> : ""}
               </div>
               <hr />
             </div>

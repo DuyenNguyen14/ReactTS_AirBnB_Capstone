@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function Edit_User({ idUser }: Props) {
-  const { editUser } = useSelector((state: RootState) => state.userReducer);
+  const { userInfo } = useSelector((state: RootState) => state.userReducer);
 
   const dispatch: AppDispatch = useDispatch();
   const formik = useFormik<{
@@ -68,20 +68,20 @@ export default function Edit_User({ idUser }: Props) {
   };
 
   const setFieldValue = () => {
-    formik.setFieldValue("id", editUser.id);
-    formik.setFieldValue("name", editUser.name);
-    formik.setFieldValue("email", editUser.email);
-    formik.setFieldValue("password", editUser.password);
-    formik.setFieldValue("phone", editUser.phone);
-    formik.setFieldValue("birthday", editUser.birthday);
-    formik.setFieldValue("role", editUser.role);
+    formik.setFieldValue("id", userInfo?.id);
+    formik.setFieldValue("name", userInfo?.name);
+    formik.setFieldValue("email", userInfo?.email);
+    formik.setFieldValue("password", userInfo?.password);
+    formik.setFieldValue("phone", userInfo?.phone);
+    formik.setFieldValue("birthday", userInfo?.birthday);
+    formik.setFieldValue("role", userInfo?.role);
   };
 
   useEffect(() => {
     loadUserFromAPI(idUser);
     setFieldValue();
     renderEditUser();
-  }, [idUser, editUser?.id]);
+  }, [idUser, userInfo?.id]);
 
   const renderEditUser = () => {
     return (
@@ -114,7 +114,9 @@ export default function Edit_User({ idUser }: Props) {
                   // onChange={formik.handleChange}
                   onChange={formik.handleChange}
                 />
-                {formik.errors.email && formik.touched.email && (<p className="text-danger my-1">Email Invalid</p>)}
+                {formik.errors.email && formik.touched.email && (
+                  <p className="text-danger my-1">Email Invalid</p>
+                )}
               </div>
               <div className="form-group my-1">
                 <label className="form-label">Phone</label>
@@ -127,7 +129,9 @@ export default function Edit_User({ idUser }: Props) {
                   value={formik.values?.phone}
                   onChange={formik.handleChange}
                 />
-                 {formik.errors.phone && formik.touched.phone && (<p className="text-danger my-1">Phone Invalid</p>)}
+                {formik.errors.phone && formik.touched.phone && (
+                  <p className="text-danger my-1">Phone Invalid</p>
+                )}
               </div>
               <div className="form-group my-1">
                 <label className="form-label">Role</label>

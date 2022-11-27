@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Swal from "sweetalert2";
 import { AppDispatch } from "../configStore";
 import { setStoreJSON, USER_LOGIN, http } from "./../../util/setting";
+import { Room } from "./roomReducer";
 
 export interface User {
   id: number;
@@ -15,37 +16,16 @@ export interface User {
   role: "USER" | "ADMIN";
 }
 
-export interface RentedRoom {
-  id: number;
-  maPhong: number;
-  ngayDen: Date;
-  ngayDi: Date;
-  soLuongKhach: number;
-  maNguoiDung: number;
-  hinhAnh: string;
-  tenPhong: string;
-  giaTien: number;
-  mayGiat: boolean;
-  banLa: boolean;
-  tivi: boolean;
-  dieuHoa: boolean;
-  wifi: boolean;
-  phongNgu: number;
-  phongTam: number;
-}
-
 type UserState = {
   arrUsers: User[];
   totalRow: number;
-  editUser: any;
   userInfo: User | null;
-  rentedRoom: RentedRoom[];
+  rentedRoom: Room[];
 };
 
 const initialState: UserState = {
   arrUsers: [],
   totalRow: 0,
-  editUser: {},
   rentedRoom: [],
   userInfo: null,
 };
@@ -60,10 +40,7 @@ const userReducer = createSlice({
     setTotalRow: (state: UserState, action: PayloadAction<number>) => {
       state.totalRow = action.payload;
     },
-    setUserByID: (state: UserState, action: PayloadAction<User[]>) => {
-      state.editUser = action.payload;
-    },
-    getRentedRoom: (state: UserState, action: PayloadAction<RentedRoom[]>) => {
+    getRentedRoom: (state: UserState, action: PayloadAction<Room[]>) => {
       state.rentedRoom = action.payload;
     },
     setUserInfo: (state: UserState, action: PayloadAction<User>) => {
@@ -75,7 +52,6 @@ const userReducer = createSlice({
 export const {
   setArrUser,
   setTotalRow,
-  setUserByID,
   getRentedRoom,
   setUserInfo,
 } = userReducer.actions;
@@ -167,7 +143,7 @@ export const editUserByIDAction = (id: number) => {
       if (id !== null) {
         const result = await http.get(`/users/${id}`);
         console.log(result.data.content);
-        dispatch(setUserByID(result.data.content));
+        dispatch(setUserInfo(result.data.content));
       }
     } catch (err) {}
   };

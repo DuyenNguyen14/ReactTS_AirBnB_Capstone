@@ -45,6 +45,7 @@ function EditInfoForm({ userInfo, setClickEdit }: Props) {
       <div className="form-group">
         <label htmlFor="name">Tên</label>
         <input
+          autoFocus
           id="name"
           type="text"
           className="form-control"

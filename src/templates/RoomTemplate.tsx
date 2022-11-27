@@ -7,6 +7,7 @@ import { getRoomByIdApi } from "../redux/reducers/roomReducer";
 import RoomMediumScreen from "../pages/Room/RoomMediumScreen";
 import RoomSmallScreen from "../pages/Room/RoomSmallScreen";
 import useLocationPathname from "../Hooks/useLocationPathname";
+import { clearLocalStorage } from "../util/setting";
 
 interface Amenities {
   [key: string]: string;
@@ -55,13 +56,17 @@ export default function Room({}: Props) {
       ""
     );
 
-  useLocationPathname();
+  const location = useLocationPathname();
 
   const width = useWindowWidth();
 
   useEffect(() => {
     dispatch(getRoomByIdApi(roomId));
   }, [roomId]);
+
+  useEffect(() => {
+    return () => clearLocalStorage('bookingInfo')
+  }, [])
 
   if (width <= 767.98) {
     return <RoomSmallScreen room={room} />;
