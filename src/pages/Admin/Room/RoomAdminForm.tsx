@@ -15,15 +15,15 @@ import {
   getLocationsApi,
   Location,
 } from "../../../redux/reducers/locationsReducer";
+import { Button } from "antd";
 
 type Props = {
   room: Room | null;
-  handleCloseModal: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function RoomAdminForm({ room, handleCloseModal }: Props) {
-  const { arrRooms } = useSelector((state: RootState) => state.roomReducer);
-
+export default function RoomAdminForm({ room, setOpen }: Props) {
+  console.log(room);
   const { arrLocations } = useSelector(
     (state: RootState) => state.locationsReducer
   );
@@ -110,28 +110,7 @@ export default function RoomAdminForm({ room, handleCloseModal }: Props) {
       );
     });
 
-  let getArrRoomId = () => arrRooms?.map((room) => room.id);
-  const formik = useFormik<{
-    id: number;
-    tenPhong: string;
-    khach: number;
-    phongNgu: number;
-    giuong: number;
-    phongTam: number;
-    moTa: string;
-    giaTien: number;
-    mayGiat: boolean;
-    banLa: boolean;
-    tivi: boolean;
-    dieuHoa: boolean;
-    wifi: boolean;
-    bep: boolean;
-    doXe: boolean;
-    hoBoi: boolean;
-    banUi: boolean;
-    maViTri: number;
-    hinhAnh: string;
-  }>({
+  const formik = useFormik<Room>({
     initialValues: room
       ? room
       : {
@@ -160,12 +139,6 @@ export default function RoomAdminForm({ room, handleCloseModal }: Props) {
         .required("Không được bỏ trống trường này!")
         .min(15, "Tên phòng phải chứa hơn 15 kí tự!")
         .max(150, "Tên phòng không được dài hơn 80 kí tự!"),
-      id: room
-        ? Yup.number()
-        : Yup.number()
-            .required("Không được bỏ trống trường này!")
-            .notOneOf(getArrRoomId(), "Mã phòng đã tồn tại!")
-            .min(-1, "Không được bỏ trống trường này!"),
       giaTien: Yup.number()
         .required("Vui lòng thêm giá tiền cho phòng!")
         .min(1, "Giá tiền không được nhỏ hơn 0!"),
@@ -212,7 +185,6 @@ export default function RoomAdminForm({ room, handleCloseModal }: Props) {
   const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllRoomsApi());
     dispatch(getLocationsApi());
   }, []);
 
@@ -293,12 +265,11 @@ export default function RoomAdminForm({ room, handleCloseModal }: Props) {
               </div>
             </div>
             {/* mã phòng */}
-            <div className="form-group mb-3">
+            <div className="form-group mb-3" hidden={!room ? true : false}>
               <label htmlFor="id" className="required">
                 Mã phòng
               </label>
               <input
-                required
                 type="number"
                 className="form-control w-75"
                 name="id"
@@ -475,15 +446,11 @@ export default function RoomAdminForm({ room, handleCloseModal }: Props) {
       </div>
       <hr />
       <div className="form-btns d-flex justify-content-end gap-2">
-        <button
-          className="btn btn-secondary"
-          onClick={handleCloseModal}
-          type="button"
-        >
+        <Button type="default" onClick={() => setOpen(false)}>
           Đóng
-        </button>
-        <button className="btn btn-success" type="submit">
-          {room ? "Cập nhật" : "Thêm mới"}
+        </Button>
+        <button type="submit" className="btn p-0">
+          <Button type="primary">{room ? "Cập nhật" : "Thêm mới"}</Button>
         </button>
       </div>
     </form>

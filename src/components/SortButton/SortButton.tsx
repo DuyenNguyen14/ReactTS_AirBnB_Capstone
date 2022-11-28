@@ -1,5 +1,5 @@
 import React, { MouseEventHandler } from "react";
-import { SortKeys, SortOrder } from "../../pages/Admin/Room/RoomManagement";
+import { SortKeys, SortOrder } from "../../Hooks/useSortTable";
 
 const defaultStyle = {
   opacity: "0",

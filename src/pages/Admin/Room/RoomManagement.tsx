@@ -3,11 +3,11 @@ import {
   deleteRoomApi,
   Room,
   searchRoomApi,
+  setArrRooms,
 } from "../../../redux/reducers/roomReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/configStore";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { Modal } from "react-bootstrap";
 import {
   getLocationsApi,
   Location,
@@ -16,8 +16,10 @@ import SortButton from "../../../components/SortButton/SortButton";
 import _ from "lodash";
 import RoomAdminForm from "./RoomAdminForm";
 import TablePagination from "../../../components/TablePagination/TablePagination";
-import { useParams } from "react-router-dom";
-import { User } from "../../../redux/reducers/authReducer";
+import { useSearchParams } from "react-router-dom";
+import useSortTable from "../../../Hooks/useSortTable";
+import LoadingHorizontal from "../../../components/Loading/LoadingHorizontal";
+import { Modal } from "react-bootstrap";
 
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -49,12 +51,6 @@ const tableHeaders: { key: keyof Room; label: string }[] = [
   },
 ];
 
-// type for sort table
-export type SortKeys = keyof Room;
-
-export type SortOrder = "asc" | "desc" | null;
-// ----------------------
-
 type Props = {};
 
 export default function RoomManagement({}: Props) {
@@ -62,16 +58,21 @@ export default function RoomManagement({}: Props) {
     (state: RootState) => state.roomReducer
   );
 
+  const [loading, setLoading] = useState(true);
+
+  const { sortedData, changeSort, handleSort, sortOrder, sortKey } =
+    useSortTable(arrRooms);
+
   const { arrLocations } = useSelector(
     (state: RootState) => state.locationsReducer
   );
 
-  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const selectedRoom = useRef<null | Room>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const keyword = useRef("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearchTermChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -97,80 +98,13 @@ export default function RoomManagement({}: Props) {
   // ------------------ table pagination --------------
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const pageIndex = useRef<string>("1");
-
   const pageSize = 10;
-
-  const handlePagination = (page: number) => {
-    setCurrentPage(page);
-    pageIndex.current = page.toString();
-  };
   // -------------------------------------
-
-  // --------------- sort table function ------------------
-  const [sortKey, setSortKey] = useState<SortKeys>("id");
-
-  const [sortOrder, setSortOrder] = useState<SortOrder>(null);
-
-  const handleSort = ({
-    tableData,
-    sortKey,
-    reverse,
-  }: {
-    tableData: Room[];
-    sortKey: SortKeys;
-    reverse: boolean;
-  }) => {
-    if (arrRooms.length > 0) {
-      if (!sortKey || !sortOrder) return tableData;
-
-      const sortedData = [...arrRooms].sort((a, b) => {
-        if (sortKey === "tenPhong" || sortKey === "moTa") {
-          return a[sortKey].toLowerCase() > b[sortKey].toLowerCase() ? 1 : -1;
-        }
-
-        return a[sortKey] > b[sortKey] ? 1 : -1;
-      });
-
-      if (reverse) {
-        return sortedData.reverse();
-      }
-
-      return sortedData;
-    }
-  };
-
-  const sortedData = useCallback(
-    () =>
-      handleSort({
-        tableData: arrRooms,
-        sortKey,
-        reverse: sortOrder === "desc",
-      }),
-    [arrRooms, sortKey, sortOrder]
-  );
-
-  const changeSort = (key: SortKeys) => {
-    if (sortKey !== key && sortOrder) {
-      setSortOrder("asc");
-      setSortKey(key);
-    } else {
-      if (!sortOrder) {
-        setSortOrder("asc");
-      }
-
-      if (sortOrder) {
-        setSortOrder(sortOrder === "asc" ? "desc" : null);
-      }
-    }
-    setSortKey(key);
-  };
-  // ------------------------------------
 
   // onClick edit button
   const handleClickEdit = (room: Room) => {
-    setOpenModal(true);
     selectedRoom.current = room;
+    setOpenModal(true);
   };
 
   // onClick add button
@@ -179,15 +113,11 @@ export default function RoomManagement({}: Props) {
     selectedRoom.current = null;
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
   const renderRoomAdminForm = useCallback(() => {
     return (
       <RoomAdminForm
+        setOpen={setOpenModal}
         room={selectedRoom.current ? selectedRoom.current : null}
-        handleCloseModal={handleCloseModal}
       />
     );
   }, [selectedRoom.current]);
@@ -199,25 +129,47 @@ export default function RoomManagement({}: Props) {
   };
 
   useEffect(() => {
+    setSearchParams({
+      pageIndex: currentPage.toString(),
+      pageSize: pageSize.toString(),
+    });
+
     dispatch(
       searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
     );
-    console.log("on mounted");
+
+    return () => {
+      dispatch(setArrRooms([]));
+    };
   }, [currentPage.toString(), pageSize.toString()]);
 
   useEffect(() => {
-    timeout = setTimeout(() => {
-      if (searchTerm.length > 0) {
+    if (arrRooms.length > 0 && currentPage.toString()) {
+      setLoading(false);
+    }
+
+    return () => {
+      setLoading(true);
+    };
+  }, [arrRooms, currentPage]);
+
+  useEffect(() => {
+    if (searchTerm.length > 0) {
+      setSearchParams({
+        ...searchParams,
+        keyword: searchTerm,
+      });
+
+      timeout = setTimeout(() => {
         dispatch(
           searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
         );
-        console.log("on search");
-      }
-    }, 1000);
+      }, 1000);
+    }
+
     return () => {
       if (timeout) {
         clearTimeout(timeout);
-        console.log("unmouting");
       }
     };
   }, [currentPage, pageSize, searchTerm]);
@@ -251,13 +203,12 @@ export default function RoomManagement({}: Props) {
           </div>
         </div>
       </form>
-
       <div className="table-responsive">
         <table className="table table-striped table-hover">
           <thead>
             <tr>
               {tableHeaders.map((header) => (
-                <th onClick={() => changeSort(header.key)}>
+                <th key={header.key} onClick={() => changeSort(header.key)}>
                   <div className="d-flex align-items-center justify-content-between">
                     <span>{header.label}</span>
                     <SortButton
@@ -273,8 +224,11 @@ export default function RoomManagement({}: Props) {
             </tr>
           </thead>
           <tbody>
-            {arrRooms.length > 0 &&
-              sortedData()?.map((room) => (
+            {loading ? (
+              <LoadingHorizontal />
+            ) : (
+              arrRooms.length > 0 &&
+              (sortedData() as Room[])?.map((room: Room) => (
                 <tr key={room.id}>
                   <td>{room.id}</td>
                   <td>{room.tenPhong}</td>
@@ -311,7 +265,7 @@ export default function RoomManagement({}: Props) {
                       <div className="btnDelete">
                         <button
                           className="btn btn-outline-danger"
-                          onClick={() => handleDeleteRoom(room.id)}
+                          onClick={() => handleDeleteRoom(room.id as number)}
                         >
                           <i className="fa fa-trash"></i>
                         </button>
@@ -319,18 +273,17 @@ export default function RoomManagement({}: Props) {
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+            )}
           </tbody>
         </table>
       </div>
-      {/* table pagination */}
       <TablePagination
         totalRow={totalRow}
         pageSize={pageSize}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
       />
-
       {/* modal */}
       <Modal show={openModal} size="lg" className="modal-dialog-scrollable">
         <Modal.Header>

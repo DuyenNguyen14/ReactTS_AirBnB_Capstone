@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
-import ModalHOC from "../../HOC/ModalHOC";
 import { AppDispatch, RootState } from "../../redux/configStore";
 import { getLocationByIdApi } from "../../redux/reducers/locationsReducer";
 import Comment from "./Comment/Comment";
@@ -40,7 +39,6 @@ export default function RoomHeading({ maViTri }: Props) {
         >
           <u>7 reviews</u>
         </NavLink>
-        <ModalHOC modalId="comment" title="Reviews" content={<Comment />} />
         <div className="dot">
           <i className="fas fa-circle"></i>
         </div>

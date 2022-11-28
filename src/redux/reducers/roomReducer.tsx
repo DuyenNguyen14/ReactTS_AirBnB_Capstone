@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import Swal from "sweetalert2";
 import { http } from "../../util/setting";
 import { AppDispatch } from "../configStore";
 export interface Room {
@@ -120,7 +121,11 @@ export const editRoomApi = (room: Room) => {
   return async () => {
     try {
       const result = await http.put(`/phong-thue/${room.id}`, room);
-      console.log(result.data.content);
+      // console.log(result.data.content);
+      Swal.fire({
+        title: "Cập nhật thành công!",
+        icon: "success",
+      })
     } catch (err) {
       console.log(err);
     }
