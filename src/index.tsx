@@ -19,6 +19,7 @@ import RoomManagement from "./pages/Admin/Room/RoomManagement";
 import BookingManagement from "./pages/Admin/BookingManagement/BookingManagement";
 import AddLocation from "./components/Admin/Location/AddLocation";
 import HomeAdmin from "./pages/Admin/HomeAdmin/HomeAdmin";
+import ModalHOC from "./HOC/ModalHoc";
 
 const Home = React.lazy(() => import("./pages/Home/Home"));
 const SignIn = React.lazy(() => import("./pages/SignIn/SignIn"));
@@ -36,6 +37,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <Provider store={store}>
     <HistoryRouter history={history as any}>
+      <ModalHOC />
       <Routes>
         {/* home template */}
         <Route path="" element={<HomeTemplate />}>

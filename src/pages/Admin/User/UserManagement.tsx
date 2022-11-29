@@ -15,6 +15,11 @@ import LoadingHorizontal from "../../../components/Loading/LoadingHorizontal";
 import useSortTable from "../../../Hooks/useSortTable";
 import SortButton from "../../../components/SortButton/SortButton";
 import UserAdminForm from "./UserAdminForm";
+import ModalHOC from "../../../HOC/ModalHoc";
+import {
+  setBodyComponent,
+  setOpen,
+} from "../../../redux/reducers/modalReducer";
 
 // table header
 const tableHeaders: { key: keyof User; label: string }[] = [
@@ -109,20 +114,19 @@ export default function UserManagement({}: Props) {
     setDeleteAction(true);
   };
 
-  const handleEdit = (user: User) => {
-    userRef.current = user;
-    setOpenModal(true);
-  };
-
-  const handleAdd = () => {
-    setOpenModal(true);
-    setOpenPopUp(false);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    setEditAction(true);
-  };
+  // onclick add and edit user
+  const handleOpenModal = useCallback(
+    (user: User | null) => {
+      if (user) {
+        userRef.current = user;
+      } else {
+        userRef.current = null;
+      }
+      dispatch(setBodyComponent(<UserAdminForm user={userRef.current} />));
+      dispatch(setOpen(true));
+    },
+    [userRef.current]
+  );
 
   useEffect(() => {
     setSearchParams({
@@ -151,9 +155,7 @@ export default function UserManagement({}: Props) {
   return (
     <div>
       <h3 className="tilte my-3 ">Users Management</h3>
-      <div className="addAdminPage mb-3" style={{ cursor: "pointer" }}>
-        <h5 onClick={handleAdd}>Add administrators Page</h5>
-      </div>
+      <div className="addAdminPage mb-3" style={{ cursor: "pointer" }}></div>
       <div className="row">
         <form className="search col-lg-4">
           <div className="input-group mb-3">
@@ -223,7 +225,7 @@ export default function UserManagement({}: Props) {
                       <td>
                         <button
                           className="btn btn-primary btn-sm rounded-5 mx-1"
-                          onClick={() => handleEdit(user)}
+                          onClick={() => handleOpenModal(user)}
                         >
                           <i className="fas fa-user-edit"></i>
                         </button>
@@ -252,22 +254,6 @@ export default function UserManagement({}: Props) {
           />
         </div>
       </div>
-      <Modal show={openModal} size="lg" className="modal-dialog-scrollable">
-        <Modal.Header>
-          <Modal.Title>
-            {openPopUp ? "Edit Users Infor" : "Add Users Infor"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{renderUserAdminForm()}</Modal.Body>
-        <Modal.Footer>
-          <button
-            className="btn btn-secondary"
-            onClick={() => handleCloseModal()}
-          >
-            Close
-          </button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 }

@@ -21,6 +21,7 @@ type UserState = {
   totalRow: number;
   userInfo: User | null;
   rentedRoom: Room[];
+  isSucceed: boolean;
 };
 
 const initialState: UserState = {
@@ -28,6 +29,7 @@ const initialState: UserState = {
   totalRow: 0,
   rentedRoom: [],
   userInfo: null,
+  isSucceed: false,
 };
 
 const userReducer = createSlice({
@@ -46,6 +48,9 @@ const userReducer = createSlice({
     setUserInfo: (state: UserState, action: PayloadAction<User>) => {
       state.userInfo = action.payload;
     },
+    setIsSucceed: (state: UserState, action: PayloadAction<boolean>) => {
+      state.isSucceed = action.payload;
+    },
   },
 });
 
@@ -54,6 +59,7 @@ export const {
   setTotalRow,
   getRentedRoom,
   setUserInfo,
+  setIsSucceed,
 } = userReducer.actions;
 
 export default userReducer.reducer;
@@ -74,22 +80,23 @@ export const editUserAction = (userId: number, userInfo: User) => {
   return async (dispatch: AppDispatch) => {
     try {
       const result = await http.put(`users/${userId}`, { ...userInfo });
-      if (result.status === 200) {
-        Swal.fire({
-          title: "Update Successfully!",
-          icon: "success",
-          confirmButtonColor: "#44c020",
-        });
-        console.log(result.data.content);
-        dispatch(setUserInfo(result.data.content));
-        setStoreJSON(USER_LOGIN, result.data.content);
-      }
+
+      Swal.fire({
+        title: "Update Successfully!",
+        icon: "success",
+        confirmButtonColor: "#44c020",
+      });
+      console.log(result.data.content);
+      dispatch(setUserInfo(result.data.content));
+      // setStoreJSON(USER_LOGIN, result.data.content);
+      dispatch(setIsSucceed(true));
     } catch (errors: any) {
       Swal.fire({
         icon: "error",
         title: errors.response?.data.message,
         text: `${errors.response?.data.content}`,
       });
+      dispatch(setIsSucceed(false));
     }
   };
 };
@@ -113,13 +120,44 @@ export const getUserPaginationAction = (
     }
   };
 };
+
 //delete
 export const deleteUserAction = (userID: number) => {
   return async () => {
     try {
       const result = await http.delete(`/users?id=${userID}`);
+      Swal.fire({
+        title: "Xoá thành công!",
+        icon: "success",
+        confirmButtonColor: "#44c020",
+      });
     } catch (err) {
       console.log(err);
+      Swal.fire({
+        title: "Xoá thất bại!",
+        icon: "error",
+        confirmButtonColor: "#44c020",
+      });
+    }
+  };
+};
+// add
+export const addUserApi = (userInfo: User) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await http.post("/users", userInfo);
+      Swal.fire({
+        title: "Thêm mới thành công!",
+        icon: "success",
+        confirmButtonColor: "#44c020",
+      });
+    } catch (err) {
+      console.log(err);
+      Swal.fire({
+        title: "Thêm mới thất bại!",
+        icon: "error",
+        confirmButtonColor: "#44c020",
+      });
     }
   };
 };

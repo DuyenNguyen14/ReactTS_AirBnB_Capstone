@@ -2,8 +2,9 @@ import { useFormik } from "formik";
 import React from "react";
 import { editUserAction, User } from "../../redux/reducers/userReducer";
 import * as Yup from "yup";
-import { AppDispatch } from "../../redux/configStore";
-import { useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/configStore";
+import { useDispatch, useSelector } from "react-redux";
+import { setStoreJSON, USER_LOGIN } from "../../util/setting";
 
 type Props = {
   userInfo: User;
@@ -11,6 +12,8 @@ type Props = {
 };
 
 function EditInfoForm({ userInfo, setClickEdit }: Props) {
+  const { isSucceed } = useSelector((state: RootState) => state.userReducer);
+
   const birthday = () => {
     if (userInfo.birthday) {
       const dateStr = userInfo.birthday;
@@ -35,7 +38,8 @@ function EditInfoForm({ userInfo, setClickEdit }: Props) {
     }),
     onSubmit: async (values) => {
       console.log(values);
-      dispatch(editUserAction(userInfo.id, values));
+      await dispatch(editUserAction(userInfo.id, values));
+      if (isSucceed) setStoreJSON(USER_LOGIN, values);
     },
   });
 

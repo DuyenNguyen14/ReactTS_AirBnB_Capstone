@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   deleteRoomApi,
   Room,
@@ -19,7 +19,11 @@ import TablePagination from "../../../components/TablePagination/TablePagination
 import { useSearchParams } from "react-router-dom";
 import useSortTable from "../../../Hooks/useSortTable";
 import LoadingHorizontal from "../../../components/Loading/LoadingHorizontal";
-import { Modal } from "react-bootstrap";
+import {
+  setBodyComponent,
+  setOpen,
+} from "../../../redux/reducers/modalReducer";
+import ModalHOC from "../../../HOC/ModalHoc";
 
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -57,22 +61,22 @@ export default function RoomManagement({}: Props) {
   const { arrRooms, totalRow } = useSelector(
     (state: RootState) => state.roomReducer
   );
-
+  const { arrLocations } = useSelector(
+    (state: RootState) => state.locationsReducer
+  );
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  // pagination
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 10;
+
+  const selectedRoom = useRef<null | Room>(null);
 
   const { sortedData, changeSort, handleSort, sortOrder, sortKey } =
     useSortTable(arrRooms);
 
-  const { arrLocations } = useSelector(
-    (state: RootState) => state.locationsReducer
-  );
-
-  const [openModal, setOpenModal] = useState(false);
-
-  const selectedRoom = useRef<null | Room>(null);
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchParams, setSearchParams] = useSearchParams();
+  const dispatch: AppDispatch = useDispatch();
 
   const handleSearchTermChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -95,35 +99,19 @@ export default function RoomManagement({}: Props) {
     }
   };
 
-  // ------------------ table pagination --------------
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  // onclick edit and add button
+  const handleOpenModal = (room: Room | null) => {
+    if (room) {
+      selectedRoom.current = room;
+    } else {
+      selectedRoom.current = null;
+    }
+    dispatch(setBodyComponent(<RoomAdminForm room={selectedRoom.current} />));
 
-  const pageSize = 10;
-  // -------------------------------------
-
-  // onClick edit button
-  const handleClickEdit = (room: Room) => {
-    selectedRoom.current = room;
-    setOpenModal(true);
+    dispatch(setOpen(true));
   };
 
-  // onClick add button
-  const handleClickAdd = () => {
-    setOpenModal(true);
-    selectedRoom.current = null;
-  };
-
-  const renderRoomAdminForm = useCallback(() => {
-    return (
-      <RoomAdminForm
-        setOpen={setOpenModal}
-        room={selectedRoom.current ? selectedRoom.current : null}
-      />
-    );
-  }, [selectedRoom.current]);
-
-  const dispatch: AppDispatch = useDispatch();
-
+  // onclick delete button
   const handleDeleteRoom = (roomId: number) => {
     dispatch(deleteRoomApi(roomId));
   };
@@ -141,10 +129,10 @@ export default function RoomManagement({}: Props) {
     return () => {
       dispatch(setArrRooms([]));
     };
-  }, [currentPage.toString(), pageSize.toString()]);
+  }, [currentPage, pageSize]);
 
   useEffect(() => {
-    if (arrRooms.length > 0 && currentPage.toString()) {
+    if (arrRooms.length > 0) {
       setLoading(false);
     }
 
@@ -181,7 +169,10 @@ export default function RoomManagement({}: Props) {
   return (
     <div className="admin-room">
       <h3>Quản lý thông tin phòng</h3>
-      <button className="btn btn-outline-secondary" onClick={handleClickAdd}>
+      <button
+        className="btn btn-outline-secondary"
+        onClick={() => handleOpenModal(null)}
+      >
         <i className="fa fa-plus me-2"></i>
         Thêm phòng
       </button>
@@ -255,9 +246,7 @@ export default function RoomManagement({}: Props) {
                       <div className="btnEdit me-2">
                         <button
                           className="btn btn-outline-warning"
-                          onClick={() => {
-                            handleClickEdit(room);
-                          }}
+                          onClick={() => handleOpenModal(room)}
                         >
                           <i className="fa fa-edit"></i>
                         </button>
@@ -285,14 +274,6 @@ export default function RoomManagement({}: Props) {
         setCurrentPage={setCurrentPage}
       />
       {/* modal */}
-      <Modal show={openModal} size="lg" className="modal-dialog-scrollable">
-        <Modal.Header>
-          <Modal.Title>
-            {selectedRoom.current ? "Cập nhật" : "Thêm phòng mới"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{renderRoomAdminForm()}</Modal.Body>
-      </Modal>
     </div>
   );
 }

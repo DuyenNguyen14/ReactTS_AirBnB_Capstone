@@ -1,17 +1,25 @@
-import React, { useState } from "react";
-import DatePicker from "react-datepicker";
-import { Formik, useFormik, FormikProps } from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
-import { http } from "../../../util/setting";
-import { User } from "../../../redux/reducers/userReducer";
+import { editUserAction, User } from "../../../redux/reducers/userReducer";
+import { AppDispatch } from "../../../redux/configStore";
+import { useDispatch } from "react-redux";
+import { setOpen } from "../../../redux/reducers/modalReducer";
+import moment from "moment";
 
 type Props = {
   user: User | null;
 };
 
 export default function UserAdminForm({ user }: Props) {
-  console.log(user);
+  const dispatch: AppDispatch = useDispatch();
+
+  const userDOB = () => {
+    if (user) {
+      const dateStr = moment(user.birthday, "YYYY-MM-DD").format("l");
+      const [month, day, year] = dateStr.split("/");
+      return `${year}-${month}-${day}`;
+    }
+  };
 
   const formik = useFormik<User>({
     initialValues: user
@@ -24,35 +32,29 @@ export default function UserAdminForm({ user }: Props) {
           password: "",
           phone: "",
           birthday: "",
-          gender: false,
+          gender: true,
           role: "USER",
         },
     validationSchema: Yup.object().shape({
-      id: Yup.number().required("ID is required!"),
       name: Yup.string().required("Name is required!"),
       email: Yup.string()
         .required("Email is required!")
         .email("Invalid email!"),
-      password: Yup.string()
-        .required("Password is required!")
-        .min(8, "Password must have at least 8 characters"),
       phone: Yup.string()
         .required("Phone is required!")
         .min(10, "Phone must have at least 10 number"),
       birthday: Yup.string().required("birthday is required!"),
-      role: Yup.string().required("role is required!"),
     }),
     onSubmit: async (values) => {
       console.log("User: ", values);
-      try {
-        let result = await http.post("users", values);
-        console.log(result.data.content);
-        console.log("Add User Successfully !");
-      } catch (err) {
-        console.log(err);
+      if (user) {
+        dispatch(editUserAction(user.id, values));
       }
+      // await dispatch(addUserApi(values));
     },
   });
+
+  const { values, handleChange, handleBlur, errors, setFieldValue } = formik;
 
   return (
     <div className="update-user container my-3 p-4 rounded-4">
@@ -61,118 +63,158 @@ export default function UserAdminForm({ user }: Props) {
       </div>
       <form onSubmit={formik.handleSubmit}>
         <div className="row">
-          <div className="col-lg-6 col-md-12 col-sm-12">
-            <div className="form-group my-1">
-              <label className="form-label">ID</label>
-              <input
-                type="id"
-                className="form-control"
-                placeholder="User's ID"
-                id="id"
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-              />
-            </div>
-            <div className="form-group my-1">
-              <label className="form-label">Email</label>
+          <div className="col-lg-6 col-sm-12">
+            {user && (
+              <div className="form-group">
+                <label className="form-label" htmlFor="id">
+                  ID
+                </label>
+                <input
+                  disabled
+                  type="number"
+                  className="form-control"
+                  placeholder="User's ID"
+                  id="id"
+                  value={values.id}
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                />
+              </div>
+            )}
+            {/* email */}
+            <div className="form-group mt-3">
+              <label className="form-label required" htmlFor="email">
+                Email
+              </label>
               <input
                 type="email"
                 className="form-control"
                 id="email"
-                aria-describedby="emailHelp"
                 placeholder="Email adrress"
-                onChange={formik.handleChange}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.email}
               />
+              {errors.email && (
+                <span className="text-danger mt-2">{errors.email}</span>
+              )}
             </div>
-            <div className="form-group my-1">
-              <label className="form-label">Phone</label>
+            {/* phone */}
+            <div className="form-group mt-3">
+              <label className="form-label required">Phone</label>
               <input
-                type="text"
+                type="tel"
                 className="form-control"
                 id="phone"
-                aria-describedby="emailHelp"
                 placeholder="Phone number"
                 onChange={formik.handleChange}
+                onBlur={handleBlur}
+                value={values.phone}
               />
             </div>
-            <div className="form-group my-1">
-              <label className="form-label">Role</label>
-              <input
-                type="text"
-                className="form-control"
+            {/* role */}
+            <div className="form-group mt-3">
+              <label htmlFor="role" className="form-label required">
+                Role
+              </label>
+              <select
+                className="form-select"
+                name="role"
                 id="role"
-                aria-describedby="emailHelp"
-                placeholder="Your role"
-                onChange={formik.handleChange}
-              />
+                onChange={handleChange}
+                defaultValue={values.role}
+                value={values.role}
+              >
+                <option value="ADMIN">ADMIN</option>
+                <option value="USER">USER</option>
+              </select>
             </div>
           </div>
-          <div className="col-lg-6 col-md-12 col-sm-12">
-            <div className="form-group my-1">
-              <label className="form-label">Birth Day</label>
+          {/* birthday */}
+          <div className="col-lg-6 col-sm-12">
+            <div className="form-group mt-3 mt-lg-0">
+              <label className="form-label required" htmlFor="birthday">
+                Birthday
+              </label>
               <input
-                type="birthday"
+                type="date"
                 className="form-control"
                 id="birthday"
-                aria-describedby="emailHelp"
+                value={userDOB()}
                 placeholder="Your birthday"
-                onChange={formik.handleChange}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
+              {errors.birthday && (
+                <span className="text-danger mt-2">{errors.birthday}</span>
+              )}
             </div>
-            <div className="form-group my-1">
-              <label className="form-label">Name</label>
+            {/* name */}
+            <div className="form-group mt-3">
+              <label className="form-label required" htmlFor="name">
+                Name
+              </label>
               <input
                 type="text"
                 className="form-control"
                 id="name"
-                aria-describedby="emailHelp"
                 placeholder="Your name"
+                value={values.name}
                 onChange={formik.handleChange}
+                onBlur={handleBlur}
               />
+              {errors.name && (
+                <span className="text-danger mt-2">{errors.name}</span>
+              )}
             </div>
-            <div className="form-group my-1">
-              <label className="form-label">Password</label>
-              <input
-                type="text"
-                className="form-control"
-                id="password"
-                aria-describedby="emailHelp"
-                placeholder="Type your password"
-                onChange={formik.handleChange}
-              />
+            <div className="mt-4">
+              <p className="m-0 required">Gender</p>
+              <div className="d-flex">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="gender"
+                    id="male"
+                    checked={values.gender}
+                    onChange={(e) => {
+                      setFieldValue("gender", true);
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="male">
+                    Male
+                  </label>
+                </div>
+                <div className="form-check ms-3">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="gender"
+                    id="female"
+                    checked={!values.gender}
+                    onChange={(e) => {
+                      setFieldValue("gender", false);
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="female">
+                    Female
+                  </label>
+                </div>
+              </div>
             </div>
-            <div className="form-group mb-3">
-              <div className="gender-title my-2">Gender</div>
-
-              <label className="gender-label me-2" htmlFor="">
-                Male
-                <input
-                  className="gender-input me-1"
-                  name="gender"
-                  defaultChecked
-                  type="radio"
-                  value="true"
-                />
-                <span className="checkmark"></span>
-              </label>
-
-              <label className="gender-label" htmlFor="">
-                Female
-                <input
-                  className="gender-input me-1"
-                  name="gender"
-                  type="radio"
-                  value="false"
-                />
-                <span className="checkmark"></span>
-              </label>
-            </div>
-            <div className="btnSubmit d-md-flex justify-content-md-end">
+            <div className="d-md-flex justify-content-md-end mt-3">
               <button
                 className="btn btn-outline-success btn-md me-4 rounded-pill px-4"
                 type="submit"
               >
-                Submit
+                Xác nhận
+              </button>
+              <button
+                className="btn btn-outline-secondary btn-md me-4 rounded-pill px-4"
+                type="button"
+                onClick={() => dispatch(setOpen(false))}
+              >
+                Close
               </button>
             </div>
           </div>

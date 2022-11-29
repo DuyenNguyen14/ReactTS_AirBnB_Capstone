@@ -16,14 +16,13 @@ import {
   Location,
 } from "../../../redux/reducers/locationsReducer";
 import { Button } from "antd";
+import { setOpen } from "../../../redux/reducers/modalReducer";
 
 type Props = {
   room: Room | null;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function RoomAdminForm({ room, setOpen }: Props) {
-  console.log(room);
+export default function RoomAdminForm({ room }: Props) {
   const { arrLocations } = useSelector(
     (state: RootState) => state.locationsReducer
   );
@@ -446,7 +445,7 @@ export default function RoomAdminForm({ room, setOpen }: Props) {
       </div>
       <hr />
       <div className="form-btns d-flex justify-content-end gap-2">
-        <Button type="default" onClick={() => setOpen(false)}>
+        <Button type="default" onClick={() => dispatch(setOpen(false))}>
           Đóng
         </Button>
         <button type="submit" className="btn p-0">

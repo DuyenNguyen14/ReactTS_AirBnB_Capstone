@@ -16,7 +16,7 @@ export default function SignIn({}: Props) {
   const { user, isLoggedIn } = useSelector(
     (state: RootState) => state.authReducer
   );
-  console.log(isLoggedIn);
+  
   const navigate = useNavigate();
 
   const dispatch: AppDispatch = useDispatch();

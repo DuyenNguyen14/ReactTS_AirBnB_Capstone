@@ -7,6 +7,7 @@ import userReducer from "./reducers/userReducer";
 import signInReducer from "./reducers/signInReducer";
 import authReducer from "./reducers/authReducer";
 import bookingReducer from "./reducers/bookingReducer";
+import modalReducer from "./reducers/modalReducer";
 export const store = configureStore({
   reducer: {
     locationsReducer,
@@ -17,6 +18,7 @@ export const store = configureStore({
     signInReducer,
     authReducer,
     bookingReducer,
+    modalReducer
   },
 });
 
