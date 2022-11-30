@@ -161,6 +161,17 @@ export const addUserApi = (userInfo: User) => {
     }
   };
 };
+// upload avatar
+export const uploadAvatarAction = (avatar: FormData) => {
+  return async () => {
+    try {
+      const result = await http.post("users/upload-avatar", avatar);
+      console.log(result.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
 //search
 export const searchUserAction = (userName: string) => {
   return async (dispatch: AppDispatch) => {
@@ -172,18 +183,6 @@ export const searchUserAction = (userName: string) => {
     } catch (err) {
       console.log(err);
     }
-  };
-};
-//edit user
-export const editUserByIDAction = (id: number) => {
-  return async (dispatch: AppDispatch) => {
-    try {
-      if (id !== null) {
-        const result = await http.get(`/users/${id}`);
-        console.log(result.data.content);
-        dispatch(setUserInfo(result.data.content));
-      }
-    } catch (err) {}
   };
 };
 //Call api getProfile

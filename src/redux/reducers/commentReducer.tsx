@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { http } from "../../util/setting";
 import { AppDispatch } from "../configStore";
 
-export interface Comment {
+export interface CommentType {
   id: number;
   maPhong: number;
   maNguoiBinhLuan: number;
@@ -12,7 +12,7 @@ export interface Comment {
 }
 
 type RoomState = {
-  arrComments: Comment[];
+  arrComments: CommentType[];
 };
 
 const initialState: RoomState = {
@@ -34,13 +34,26 @@ export const { setArrComment } = commentReducer.actions;
 export default commentReducer.reducer;
 
 // call api
-const getCommentsByRoomId = (roomId: undefined | string) => {
+export const getCommentsByRoomId = (roomId: undefined | string) => {
   return async (dispatch: AppDispatch) => {
     try {
       const result = await http.get(
         `/binh-luan/lay-binh-luan-theo-phong/${roomId}`
       );
       console.log(result.data.content);
+      dispatch(setArrComment(result.data.content));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
+
+export const getAllComments = () => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await http.get(`/binh-luan`);
+      console.log(result.data.content);
+      dispatch(setArrComment(result.data.content));
     } catch (err) {
       console.log(err);
     }

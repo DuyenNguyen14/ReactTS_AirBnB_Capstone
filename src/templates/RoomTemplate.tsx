@@ -8,6 +8,7 @@ import RoomMediumScreen from "../pages/Room/RoomMediumScreen";
 import RoomSmallScreen from "../pages/Room/RoomSmallScreen";
 import useLocationPathname from "../Hooks/useLocationPathname";
 import { clearLocalStorage } from "../util/setting";
+import { getCommentsByRoomId } from "../redux/reducers/commentReducer";
 
 interface Amenities {
   [key: string]: string;
@@ -65,8 +66,8 @@ export default function Room({}: Props) {
   }, [roomId]);
 
   useEffect(() => {
-    return () => clearLocalStorage('bookingInfo')
-  }, [])
+    return () => clearLocalStorage("bookingInfo");
+  }, []);
 
   if (width <= 767.98) {
     return <RoomSmallScreen room={room} />;

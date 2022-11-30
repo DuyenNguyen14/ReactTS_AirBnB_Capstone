@@ -14,9 +14,8 @@ import HomeTemplate from "./templates/HomeTemplate";
 import Loading from "./components/Loading/Loading";
 import AdminTemplate from "./templates/AdminTemplate";
 import UserManagement from "./pages/Admin/User/UserManagement";
-import LocationManagement from "./pages/Admin/LocationManagement/LocationManagement";
+import LocationManagement from "./pages/Admin/Location/LocationManagement";
 import RoomManagement from "./pages/Admin/Room/RoomManagement";
-import BookingManagement from "./pages/Admin/BookingManagement/BookingManagement";
 import AddLocation from "./components/Admin/Location/AddLocation";
 import HomeAdmin from "./pages/Admin/HomeAdmin/HomeAdmin";
 import ModalHOC from "./HOC/ModalHoc";
@@ -116,7 +115,6 @@ root.render(
             <Route path="users" element={<UserManagement />}></Route>
             <Route path="locations" element={<LocationManagement />}></Route>
             <Route path="rooms" element={<RoomManagement />}></Route>
-            <Route path="bookings" element={<BookingManagement />}></Route>
           </Route>
         </Route>
         {/* admin template */}

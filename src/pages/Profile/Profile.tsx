@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { history } from "../../index";
 import useLocationPathname from "../../Hooks/useLocationPathname";
 import { openNotificationWithIcon } from "../../util/notification";
 import { ACCESS_TOKEN, getStoreJSON, handleLogout } from "../../util/setting";
 import { AppDispatch, RootState } from "../../redux/configStore";
 import { useDispatch, useSelector } from "react-redux";
-import { editUserAction, getUserById } from "../../redux/reducers/userReducer";
+import {
+  editUserAction,
+  getUserById,
+  uploadAvatarAction,
+} from "../../redux/reducers/userReducer";
 import { useParams } from "react-router-dom";
 import { EditInfoFormMemo } from "./EditInfoForm";
 import BookedRoom from "../../components/RentedRoom/BookedRoom";
@@ -24,8 +28,9 @@ export default function Profile({}: Props) {
 
   const dispatch: AppDispatch = useDispatch();
 
-  // ------------------- xử lý upload hình -------------------
+  // // ------------------- xử lý upload hình -------------------
   const [selectedImg, setSelectedImg] = useState<string | ArrayBuffer | null>();
+  const avatarRef = useRef<any>(null);
 
   let reader = new FileReader();
 
@@ -44,16 +49,16 @@ export default function Profile({}: Props) {
       }
     }
   };
-  // ------------------------
 
   const handleUploadAvatar = () => {
-    if (selectedImg && userInfo) {
-      // dispatch(uploadAvatarApi(selectedImg));
-      const values = { ...userInfo, avatar: selectedImg as string };
-      console.log({ ...values });
-      dispatch(editUserAction(userInfo.id, { ...values }));
+    if (avatarRef.current.files[0]) {
+      console.log(avatarRef.current.files[0]);
+      const formData = new FormData();
+      formData.append("avatar", avatarRef.current.files[0]);
+      dispatch(uploadAvatarAction(formData));
     }
   };
+  // ------------------------
 
   useEffect(() => {
     if (!accessToken) {
@@ -93,16 +98,17 @@ export default function Profile({}: Props) {
               <div className="user-avatar__img">
                 <img
                   src={
-                    selectedImg
-                      ? (selectedImg as string)
-                      : userInfo.avatar === ""
+                    userInfo.avatar
+                      ? userInfo.avatar
+                      : !selectedImg
                       ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB_roDFHBOdtmmw28enuqKNnxrhlvnap8bloQeefIiYA&s"
-                      : userInfo.avatar
+                      : (selectedImg as string)
                   }
                   alt=""
                 />
               </div>
               <input
+                ref={avatarRef}
                 type="file"
                 className="file"
                 id="avatar"
@@ -120,7 +126,7 @@ export default function Profile({}: Props) {
                 </button>
                 <button
                   className="btn--primary"
-                  hidden={!selectedImg ? true : false}
+                  hidden={!avatarRef.current ? true : false}
                   onClick={handleUploadAvatar}
                 >
                   <i className="fa fa-check"></i>

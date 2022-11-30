@@ -37,7 +37,7 @@ export default function CommentSlider({}: Props) {
         modules={[Pagination]}
         style={{ paddingBottom: "25px", zIndex: "-1" }}
       >
-        <SwiperSlide>
+        {/* <SwiperSlide>
           <div className="comment-card--border">
             <CommentCard />
           </div>
@@ -51,7 +51,7 @@ export default function CommentSlider({}: Props) {
           <div className="comment-card--border">
             <CommentCard />
           </div>
-        </SwiperSlide>
+        </SwiperSlide> */}
       </Swiper>
     </>
   );
