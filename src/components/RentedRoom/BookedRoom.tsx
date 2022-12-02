@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/configStore";
-import { getRentedRoomByUserId } from "../../redux/reducers/bookingReducer";
+import {
+  getRentedRoomByUserId,
+  setFetching,
+} from "../../redux/reducers/bookingReducer";
 import { getRoomByIdApi, Room } from "../../redux/reducers/roomReducer";
 import Loading from "../Loading/Loading";
+import LoadingHorizontal from "../Loading/LoadingHorizontal";
 import BookedRoomItem from "./BookedRoomItem";
 
 const loadingGif = require("../../assets/img/loading-2.gif");
@@ -15,14 +19,16 @@ type Props = {
 };
 
 export default function BookedRoom({ userId }: Props) {
-  const { bookedRoomIds, bookingList } = useSelector(
+  const { bookingList, fetching } = useSelector(
     (state: RootState) => state.bookingReducer
   );
+  console.log({ fetching });
 
   const { room } = useSelector((state: RootState) => state.roomReducer);
 
   const [roomList, setRoomList] = useState<Room[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  console.log({ loading });
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -31,13 +37,19 @@ export default function BookedRoom({ userId }: Props) {
   }, [userId]);
 
   useEffect(() => {
-    if (bookingList.length > 0) {
-      timeout = setTimeout(async () => {
-        for (const room of bookingList) {
-          await dispatch(getRoomByIdApi(room.maPhong));
-          if (bookingList.length === roomList.length) break;
-        }
-      }, 1000);
+    // xét trường hợp đã fetch xong data
+    if (!fetching) {
+      // nếu bookingList.length > 0 thì thực hiện get roomInfo từ maPhong trong bookingList
+      if (bookingList.length > 0) {
+        timeout = setTimeout(async () => {
+          for (const room of bookingList) {
+            await dispatch(getRoomByIdApi(room.maPhong));
+            if (bookingList.length === roomList.length) break;
+          }
+        }, 1000);
+      } else if (bookingList.length === 0) {
+        setLoading(false);
+      }
     }
 
     return () => {
@@ -46,7 +58,7 @@ export default function BookedRoom({ userId }: Props) {
       }
       setRoomList([]);
     };
-  }, [bookingList]);
+  }, [bookingList, fetching]);
 
   useEffect(() => {
     if (room.id) {
@@ -59,19 +71,24 @@ export default function BookedRoom({ userId }: Props) {
     if (
       bookingList.length === roomList.length &&
       bookingList.length > 0 &&
-      roomList.length > 0
+      roomList.length > 0 &&
+      !fetching
     ) {
-      setLoading(false);
-    } else if (bookingList.length === 0 && roomList.length === 0) {
       setLoading(false);
     }
   }, [bookingList.length, roomList.length]);
 
+  useEffect(() => {
+    return () => {
+      dispatch(setFetching(true));
+    };
+  }, []);
+
   const render = useCallback(() => {
     if (
-      bookingList.length === roomList.length &&
       bookingList.length > 0 &&
-      roomList.length > 0
+      roomList.length === bookingList.length &&
+      !loading
     ) {
       return bookingList.map((booking, index) => {
         const room = roomList.find((room) => room.id === booking.maPhong);
@@ -84,18 +101,10 @@ export default function BookedRoom({ userId }: Props) {
         }
       });
     }
-    if (bookingList.length === 0 && roomList.length === 0 && !loading) {
+    if (bookingList.length === 0 && !loading) {
       return "Lịch sử đặt phòng trống!";
     }
   }, [bookingList, roomList, loading]);
 
-  return (
-    <>
-      {loading ? (
-        <img style={{ width: "50px" }} src={loadingGif} alt="" />
-      ) : (
-        render()
-      )}
-    </>
-  );
+  return <>{loading ? <LoadingHorizontal /> : render()}</>;
 }

@@ -102,7 +102,7 @@ export default function BookingBox({}: Props) {
         );
       }
       // trường hợp đặt phòng mới
-      if (value[0] && value[1]) {
+      if (!bookingInfo && value[0] && value[1]) {
         await dispatch(bookingApi(bookingValue, user.id as number));
       }
     }

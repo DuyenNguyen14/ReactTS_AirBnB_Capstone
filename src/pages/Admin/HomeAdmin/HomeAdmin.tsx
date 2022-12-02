@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Modal } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Swal from "sweetalert2";
 import { User } from "../../../redux/reducers/userReducer";
 import { getStoreJSON, handleLogout } from "../../../util/setting";
 import AdminBookingHistory from "./AdminBookingHistory";
-import AdminProfileForm from "./AdminProfileForm";
 
 type Props = {};
 

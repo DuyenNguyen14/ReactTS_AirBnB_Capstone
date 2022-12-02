@@ -17,13 +17,13 @@ export interface Booking {
 type InitialState = {
   bookingList: Booking[];
   booking: Booking;
-  bookedRoomIds: number[];
+  fetching: boolean;
 };
 
 const initialState: InitialState = {
   bookingList: [],
   booking: {} as Booking,
-  bookedRoomIds: [],
+  fetching: true,
 };
 
 const bookingReducer = createSlice({
@@ -32,14 +32,6 @@ const bookingReducer = createSlice({
   reducers: {
     setBookingList: (state: InitialState, action: PayloadAction<Booking[]>) => {
       state.bookingList = action.payload;
-    },
-    setBookedRoomIds: (
-      state: InitialState,
-      action: PayloadAction<Booking[]>
-    ) => {
-      state.bookedRoomIds = action.payload.map(
-        (room) => room && (room.maPhong as number)
-      );
     },
     setBookingListAfterDeleted: (
       state: InitialState,
@@ -50,10 +42,13 @@ const bookingReducer = createSlice({
       );
       state.bookingList.splice(index, 1);
     },
+    setFetching: (state: InitialState, action: PayloadAction<boolean>) => {
+      state.fetching = action.payload;
+    },
   },
 });
 
-export const { setBookingList, setBookedRoomIds, setBookingListAfterDeleted } =
+export const { setBookingList, setBookingListAfterDeleted, setFetching } =
   bookingReducer.actions;
 
 export default bookingReducer.reducer;
@@ -93,6 +88,7 @@ export const getRentedRoomByUserId = (userId: number) => {
         console.log(result.data.content);
         dispatch(setBookingList(result.data.content));
         // dispatch(setBookedRoomIds(result.data.content));
+        dispatch(setFetching(false));
       }
     } catch (err) {
       console.log(err);
