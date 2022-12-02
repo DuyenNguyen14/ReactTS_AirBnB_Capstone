@@ -71,8 +71,6 @@ export const {
   handleLogout,
 } = configs;
 
-const TOKEN_ADMIN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5Mb3AiOiJCb290Y2FtcCAzNUUiLCJIZXRIYW5TdHJpbmciOiIzMS8wNS8yMDIzIiwiSGV0SGFuVGltZSI6IjE2ODU0OTEyMDAwMDAiLCJuYmYiOjE2NTczODYwMDAsImV4cCI6MTY4NTYzODgwMH0.LWlPoCoXPHgp2U6FijTqXvKFt7ENvY9Tyn9ux-bVlXo";
 const TOKEN_CYBERSOFT =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5Mb3AiOiJCb290Y2FtcCAzNUUiLCJIZXRIYW5TdHJpbmciOiIzMS8wNS8yMDIzIiwiSGV0SGFuVGltZSI6IjE2ODU0OTEyMDAwMDAiLCJuYmYiOjE2NTczODYwMDAsImV4cCI6MTY4NTYzODgwMH0.LWlPoCoXPHgp2U6FijTqXvKFt7ENvY9Tyn9ux-bVlXo";
 
@@ -90,9 +88,8 @@ http.interceptors.request.use(
     //Cấu hình tất cả header add thêm thuộc tính Authorization
     configs.headers = {
       ...configs.headers,
-      // ["token"]: TOKEN_ADMIN,
-      ["Authorization"]: `Bearer ${getStore(ACCESS_TOKEN)}`,
-      ["TokenCybersoft"]: TOKEN_CYBERSOFT,
+      ["token"]: `${getStoreJSON(ACCESS_TOKEN)}`,
+      ["tokenCybersoft"]: TOKEN_CYBERSOFT,
     };
 
     return configs;

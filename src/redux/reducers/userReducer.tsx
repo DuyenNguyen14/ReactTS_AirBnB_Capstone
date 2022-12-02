@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Swal from "sweetalert2";
+import { openNotificationWithIcon } from "../../util/notification";
 import { AppDispatch } from "../configStore";
 import { setStoreJSON, USER_LOGIN, http } from "./../../util/setting";
 import { Room } from "./roomReducer";
@@ -162,13 +163,23 @@ export const addUserApi = (userInfo: User) => {
   };
 };
 // upload avatar
-export const uploadAvatarAction = (avatar: FormData) => {
+export const uploadAvatarAction = (data: FormData) => {
   return async () => {
     try {
-      const result = await http.post("users/upload-avatar", avatar);
+      const result = await http.post("users/upload-avatar", data);
       console.log(result.data);
+      openNotificationWithIcon(
+        "success",
+        "Cập nhật ảnh đại diện thành công!",
+        ""
+      );
     } catch (err) {
       console.log(err);
+      openNotificationWithIcon(
+        "error",
+        "Cập nhật ảnh đại diện thất bại!",
+        "Vui lòng thử lại!"
+      );
     }
   };
 };

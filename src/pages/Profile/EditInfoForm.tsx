@@ -1,10 +1,11 @@
 import { useFormik } from "formik";
-import React from "react";
+import React, { ChangeEvent } from "react";
 import { editUserAction, User } from "../../redux/reducers/userReducer";
 import * as Yup from "yup";
 import { AppDispatch, RootState } from "../../redux/configStore";
 import { useDispatch, useSelector } from "react-redux";
 import { setStoreJSON, USER_LOGIN } from "../../util/setting";
+import moment from "moment";
 
 type Props = {
   userInfo: User;
@@ -39,7 +40,9 @@ function EditInfoForm({ userInfo, setClickEdit }: Props) {
     onSubmit: async (values) => {
       console.log(values);
       await dispatch(editUserAction(userInfo.id, values));
-      if (isSucceed) setStoreJSON(USER_LOGIN, values);
+      if (isSucceed) {
+        setStoreJSON(USER_LOGIN, values);
+      }
     },
   });
 
@@ -77,7 +80,7 @@ function EditInfoForm({ userInfo, setClickEdit }: Props) {
           id="birthday"
           type="date"
           className="form-control"
-          value={birthday()}
+          value={values.birthday}
           onChange={handleChange}
           onBlur={handleBlur}
         />

@@ -1,35 +1,36 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../../redux/configStore";
 import {
   CommentType,
   getAllComments,
-  setArrComment,
 } from "../../../redux/reducers/commentReducer";
 import { getUserById, User } from "../../../redux/reducers/userReducer";
 import CommentCard from "./CommentCard";
-import _, { indexOf } from "lodash";
-import { useFormik } from "formik";
+import _ from "lodash";
 import { getStoreJSON, USER_LOGIN } from "../../../util/setting";
-import moment from "moment";
 
 let timeout: ReturnType<typeof setTimeout>;
 
 type Props = {};
 
 export default function Comment({}: Props) {
-  const { arrComments } = useSelector(
+  const { arrComments, success } = useSelector(
     (state: RootState) => state.commentReducer
   );
+  console.log(arrComments);
   const { userInfo } = useSelector((state: RootState) => state.userReducer);
 
   const [roomComments, setRoomComments] = useState<CommentType[]>([]);
+  console.log({ roomComments });
   const [userIds, setUserIds] = useState<number[]>([]);
   const [userList, setUserList] = useState<User[]>([]);
   console.log({ userList });
   const [isFetching, setIsFetching] = useState<boolean>(true);
   const [visible, setVisible] = useState(4);
+  const [rating, setRating] = useState(0);
+  console.log({ rating });
 
   const { roomId } = useParams();
   const user: User = getStoreJSON(USER_LOGIN);
@@ -70,24 +71,27 @@ export default function Comment({}: Props) {
     }
   }, [roomComments, userList, isFetching, visible]);
 
-  const formik = useFormik<CommentType>({
-    initialValues: {
-      id: 0,
-      maPhong: Number(roomId),
-      maNguoiBinhLuan: user.id,
-      ngayBinhLuan: moment(new Date()).format("DD/MM/YYYY"),
-      noiDung: "",
-      saoBinhLuan: 0,
-    },
-    onSubmit: async (values) => {
-      await console.log(values);
-    },
-  });
-
-  const handleAddComment = () => {};
+  // const formik = useFormik<CommentType>({
+  //   initialValues: {
+  //     id: 0,
+  //     maPhong: Number(roomId),
+  //     maNguoiBinhLuan: user.id,
+  //     ngayBinhLuan: moment(new Date()).format("DD/MM/YYYY"),
+  //     noiDung: "",
+  //     saoBinhLuan: rating,
+  //   },
+  //   onSubmit: async (values) => {
+  //     values.saoBinhLuan = rating;
+  //     console.log(values);
+  //     await dispatch(sendComment(values));
+  //   },
+  // });
 
   useEffect(() => {
     dispatch(getAllComments());
+    return () => {
+      console.log("clean");
+    };
   }, []);
 
   useEffect(() => {
@@ -142,6 +146,7 @@ export default function Comment({}: Props) {
 
   useEffect(() => {
     return () => {
+      setRoomComments([]);
       setUserIds([]);
       setUserList([]);
     };
@@ -179,8 +184,14 @@ export default function Comment({}: Props) {
           ""
         )}
       </div>
-      <div className="comment-form mt-3">
+      {/* <div className="comment-form mt-3">
         <h4>Viết review của bạn cho phòng này!</h4>
+        <Rating
+          rating={rating}
+          onRating={(rate) => setRating(rate)}
+          count={5}
+        />
+        <p>Đánh giá - {rating}</p>
         <form className="row gap-0" onSubmit={formik.handleSubmit}>
           <div className="col-10">
             <textarea
@@ -190,11 +201,15 @@ export default function Comment({}: Props) {
               onChange={formik.handleChange}
             ></textarea>
           </div>
-          <button className="btn btn--primary col-2" type="submit">
+          <button
+            className="btn btn--primary col-2"
+            type="submit"
+            onClick={forceUpdate}
+          >
             <i className="far fa-paper-plane"></i>
           </button>
         </form>
-      </div>
+      </div> */}
     </>
   );
 }

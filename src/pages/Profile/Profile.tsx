@@ -21,6 +21,7 @@ export default function Profile({}: Props) {
 
   const [clickEdit, setClickEdit] = useState(false);
   const [clickRentedRoom, setClickRentedRoom] = useState(false);
+  const [hideBtnUpload, setHideBtnUpload] = useState(true);
 
   const { userid } = useParams();
 
@@ -46,6 +47,7 @@ export default function Profile({}: Props) {
         reader.onload = (e: ProgressEvent<FileReader>) => {
           setSelectedImg(e.target?.result);
         };
+        setHideBtnUpload(false);
       }
     }
   };
@@ -54,8 +56,9 @@ export default function Profile({}: Props) {
     if (avatarRef.current.files[0]) {
       console.log(avatarRef.current.files[0]);
       const formData = new FormData();
-      formData.append("avatar", avatarRef.current.files[0]);
+      formData.append("formFile", avatarRef.current.files[0]);
       dispatch(uploadAvatarAction(formData));
+      setHideBtnUpload(true);
     }
   };
   // ------------------------
@@ -98,11 +101,14 @@ export default function Profile({}: Props) {
               <div className="user-avatar__img">
                 <img
                   src={
-                    userInfo.avatar
-                      ? userInfo.avatar
-                      : !selectedImg
-                      ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB_roDFHBOdtmmw28enuqKNnxrhlvnap8bloQeefIiYA&s"
-                      : (selectedImg as string)
+                    userInfo.avatar !== ""
+                      ? userInfo.avatar &&
+                        (selectedImg
+                          ? (selectedImg as string)
+                          : userInfo.avatar)
+                      : selectedImg
+                      ? (selectedImg as string)
+                      : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB_roDFHBOdtmmw28enuqKNnxrhlvnap8bloQeefIiYA&s"
                   }
                   alt=""
                 />
@@ -126,7 +132,7 @@ export default function Profile({}: Props) {
                 </button>
                 <button
                   className="btn--primary"
-                  hidden={!avatarRef.current ? true : false}
+                  hidden={hideBtnUpload}
                   onClick={handleUploadAvatar}
                 >
                   <i className="fa fa-check"></i>

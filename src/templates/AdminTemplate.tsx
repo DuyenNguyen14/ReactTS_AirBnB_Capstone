@@ -4,6 +4,8 @@ import { UserOutlined, CompassOutlined, HomeOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Layout, Menu } from "antd";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { User } from "../redux/reducers/userReducer";
+import { getStoreJSON, USER_LOGIN, handleLogout } from "../util/setting";
 
 const logo = require("../assets/img/airbnb-logo(white).png");
 
@@ -36,6 +38,8 @@ type Props = {};
 export default function AdminTemplate({}: Props) {
   const [collapsed, setCollapsed] = useState(true);
 
+  const userLogin: User = getStoreJSON(USER_LOGIN);
+
   const location = useLocation();
 
   const navigate = useNavigate();
@@ -48,10 +52,7 @@ export default function AdminTemplate({}: Props) {
         onCollapse={(value) => setCollapsed(value)}
         style={{ position: "absolute", minHeight: "100%", zIndex: "150" }}
       >
-        <NavLink to="/"
-          className="logo"
-          style={{ height: "60px" }}
-        >
+        <NavLink to="/" className="logo" style={{ height: "60px" }}>
           <img
             src={logo}
             alt="logo"
@@ -80,14 +81,17 @@ export default function AdminTemplate({}: Props) {
             theme="dark"
             className="d-flex justify-content-end"
           >
-            <button className="btn admin-toggles">
+            <button
+              className="btn admin-toggles"
+              onClick={() => navigate("/admin")}
+            >
               <img
-                src="https://i.pravatar.cc/200"
-                alt="adminname"
+                src={userLogin.avatar}
+                alt={userLogin.name}
                 style={{ width: "50px", height: "50px", borderRadius: "50%" }}
               />
             </button>
-            <button className="btn text-light">
+            <button className="btn text-light" onClick={handleLogout}>
               <i className="fas fa-sign-out-alt"></i>
             </button>
           </Menu>

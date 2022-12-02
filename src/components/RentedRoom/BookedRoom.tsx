@@ -39,6 +39,7 @@ export default function BookedRoom({ userId }: Props) {
         }
       }, 1000);
     }
+
     return () => {
       if (timeout) {
         clearTimeout(timeout);
@@ -60,6 +61,8 @@ export default function BookedRoom({ userId }: Props) {
       bookingList.length > 0 &&
       roomList.length > 0
     ) {
+      setLoading(false);
+    } else if (bookingList.length === 0 && roomList.length === 0) {
       setLoading(false);
     }
   }, [bookingList.length, roomList.length]);
