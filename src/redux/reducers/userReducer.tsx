@@ -173,6 +173,7 @@ export const uploadAvatarAction = (data: FormData) => {
         "Cập nhật ảnh đại diện thành công!",
         ""
       );
+      setStoreJSON("userLogin", result.data.content);
     } catch (err) {
       console.log(err);
       openNotificationWithIcon(
