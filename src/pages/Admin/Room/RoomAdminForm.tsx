@@ -4,6 +4,7 @@ import {
   editRoomApi,
   getAllRoomsApi,
   Room,
+  setIsSuccessful,
 } from "../../../redux/reducers/roomReducer";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export default function RoomAdminForm({ room }: Props) {
+  const { isSuccessful } = useSelector((state: RootState) => state.roomReducer);
   const { arrLocations } = useSelector(
     (state: RootState) => state.locationsReducer
   );
@@ -166,7 +168,6 @@ export default function RoomAdminForm({ room }: Props) {
         await dispatch(addRoomApi(values));
       }
       if (room) {
-        console.log("update phong", values);
         await dispatch(editRoomApi(values));
       }
     },
@@ -186,6 +187,16 @@ export default function RoomAdminForm({ room }: Props) {
   useEffect(() => {
     dispatch(getLocationsApi());
   }, []);
+
+  useEffect(() => {
+    if (isSuccessful) {
+      dispatch(setOpen(false));
+    }
+
+    return () => {
+      dispatch(setIsSuccessful(false));
+    };
+  }, [isSuccessful]);
 
   return (
     <form onSubmit={handleSubmit}>

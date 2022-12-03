@@ -4,6 +4,7 @@ import {
   Room,
   searchRoomApi,
   setArrRooms,
+  setIsFetching,
 } from "../../../redux/reducers/roomReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/configStore";
@@ -23,7 +24,6 @@ import {
   setBodyComponent,
   setOpen,
 } from "../../../redux/reducers/modalReducer";
-import ModalHOC from "../../../HOC/ModalHoc";
 
 let timeout: ReturnType<typeof setTimeout>;
 
@@ -58,7 +58,7 @@ const tableHeaders: { key: keyof Room; label: string }[] = [
 type Props = {};
 
 export default function RoomManagement({}: Props) {
-  const { arrRooms, totalRow } = useSelector(
+  const { arrRooms, totalRow, isFetching } = useSelector(
     (state: RootState) => state.roomReducer
   );
   const { arrLocations } = useSelector(
@@ -80,6 +80,15 @@ export default function RoomManagement({}: Props) {
 
   const handleSearchTermChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
+  };
+
+  // onclick search button
+  const handleSearch = () => {
+    if (searchTerm.length > 0) {
+      dispatch(
+        searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
+      );
+    }
   };
 
   // render room location based on room.maViTri
@@ -120,34 +129,15 @@ export default function RoomManagement({}: Props) {
     setSearchParams({
       pageIndex: currentPage.toString(),
       pageSize: pageSize.toString(),
+      keyword: searchTerm,
     });
 
-    dispatch(
-      searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
-    );
-
-    return () => {
-      dispatch(setArrRooms([]));
-    };
-  }, [currentPage, pageSize]);
-
-  useEffect(() => {
-    if (arrRooms.length > 0) {
-      setLoading(false);
-    }
-
-    return () => {
-      setLoading(true);
-    };
-  }, [arrRooms, currentPage]);
-
-  useEffect(() => {
-    if (searchTerm.length > 0) {
-      setSearchParams({
-        ...searchParams,
-        keyword: searchTerm,
-      });
-
+    if (searchTerm === "") {
+      dispatch(
+        searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
+      );
+    } else if (searchTerm.length > 0) {
+      dispatch(setIsFetching(true));
       timeout = setTimeout(() => {
         dispatch(
           searchRoomApi(currentPage.toString(), pageSize.toString(), searchTerm)
@@ -156,11 +146,31 @@ export default function RoomManagement({}: Props) {
     }
 
     return () => {
+      dispatch(setArrRooms([]));
       if (timeout) {
         clearTimeout(timeout);
       }
     };
   }, [currentPage, pageSize, searchTerm]);
+
+  useEffect(() => {
+    if (!isFetching) {
+      if (arrRooms.length === 0) {
+        setCurrentPage(1);
+      }
+      setLoading(false);
+    }
+
+    return () => {
+      setLoading(true);
+    };
+  }, [arrRooms, currentPage, isFetching]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(setIsFetching(true));
+    };
+  }, [currentPage]);
 
   useEffect(() => {
     dispatch(getLocationsApi());
@@ -177,18 +187,32 @@ export default function RoomManagement({}: Props) {
         Thêm phòng
       </button>
       <form>
-        <div className="admin__searchBar input-group mt-2">
+        <div className="admin__searchBar input-group mt-2 w-25">
           <input
             type="text"
             value={searchTerm}
             onChange={handleSearchTermChange}
-            className="form-control"
+            className="form-control position-relative"
             placeholder="Start your search"
             aria-label="Start your search"
-            aria-describedby="basic-addon2"
           />
+
+          <button
+            type="button"
+            onClick={() => setSearchTerm("")}
+            hidden={searchTerm === "" && true}
+            className="btn bg-transparent position-absolute"
+            style={{ right: "37px", zIndex: "5" }}
+          >
+            <i className="fa fa-times"></i>
+          </button>
+
           <div className="input-group-append">
-            <button className="btn btn-outline-secondary" type="button">
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleSearch}
+            >
               <i className="fa fa-search"></i>
             </button>
           </div>
@@ -217,8 +241,7 @@ export default function RoomManagement({}: Props) {
           <tbody>
             {loading ? (
               <LoadingHorizontal />
-            ) : (
-              arrRooms.length > 0 &&
+            ) : arrRooms.length > 0 ? (
               (sortedData() as Room[])?.map((room: Room) => (
                 <tr key={room.id}>
                   <td>{room.id}</td>
@@ -263,6 +286,8 @@ export default function RoomManagement({}: Props) {
                   </td>
                 </tr>
               ))
+            ) : (
+              "Không có kết quả"
             )}
           </tbody>
         </table>
@@ -273,7 +298,6 @@ export default function RoomManagement({}: Props) {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
       />
-      {/* modal */}
     </div>
   );
 }

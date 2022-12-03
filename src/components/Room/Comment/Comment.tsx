@@ -137,7 +137,7 @@ export default function Comment({}: Props) {
   useEffect(() => {
     if (userIds.length > 0 && userInfo && userInfo.id) {
       console.log("render");
-      setUserList((prevState) => [...prevState, userInfo]);
+      setUserList((prevState) => _.uniqBy([...prevState, userInfo], "id"));
     }
     // return () => {
     //   setUserList([]);
