@@ -1,16 +1,22 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { editUserAction, User } from "../../../redux/reducers/userReducer";
-import { AppDispatch } from "../../../redux/configStore";
-import { useDispatch } from "react-redux";
+import {
+  editUserAction,
+  setIsSucceed,
+  User,
+} from "../../../redux/reducers/userReducer";
+import { AppDispatch, RootState } from "../../../redux/configStore";
+import { useDispatch, useSelector } from "react-redux";
 import { setOpen } from "../../../redux/reducers/modalReducer";
 import moment from "moment";
+import { useEffect } from "react";
 
 type Props = {
   user: User | null;
 };
 
 export default function UserAdminForm({ user }: Props) {
+  const { isSucceed } = useSelector((state: RootState) => state.userReducer);
   const dispatch: AppDispatch = useDispatch();
 
   const userDOB = () => {
@@ -42,7 +48,7 @@ export default function UserAdminForm({ user }: Props) {
         .email("Invalid email!"),
       phone: Yup.string()
         .required("Phone is required!")
-        .min(10, "Phone must have at least 10 number"),
+        .min(10, "Sđt bao gồm 10 số"),
       birthday: Yup.string().required("birthday is required!"),
     }),
     onSubmit: async (values) => {
@@ -50,9 +56,18 @@ export default function UserAdminForm({ user }: Props) {
       if (user) {
         dispatch(editUserAction(user.id, values));
       }
-      // await dispatch(addUserApi(values));
     },
   });
+
+  useEffect(() => {
+    if (isSucceed) {
+      dispatch(setOpen(false));
+    }
+
+    return () => {
+      dispatch(setIsSucceed(false));
+    };
+  }, [isSucceed]);
 
   const { values, handleChange, handleBlur, errors, setFieldValue } = formik;
 
@@ -111,6 +126,9 @@ export default function UserAdminForm({ user }: Props) {
                 onBlur={handleBlur}
                 value={values.phone}
               />
+              {errors.phone && (
+                <span className="text-danger mt-2">{errors.phone}</span>
+              )}
             </div>
             {/* role */}
             <div className="form-group mt-3">

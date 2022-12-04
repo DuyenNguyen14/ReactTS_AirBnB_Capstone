@@ -219,7 +219,7 @@ export default function RoomManagement({}: Props) {
         </div>
       </form>
       <div className="table-responsive">
-        <table className="table table-striped table-hover">
+        <table className="table table-striped">
           <thead>
             <tr>
               {tableHeaders.map((header) => (

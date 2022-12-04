@@ -5,17 +5,15 @@ import { AppDispatch, RootState } from "./../../../redux/configStore";
 import {
   deleteUserAction,
   getUserPaginationAction,
-  searchUserAction,
   setArrUser,
+  setIsFetching,
   User,
 } from "../../../redux/reducers/userReducer";
-import { Modal } from "react-bootstrap";
 import TablePagination from "../../../components/TablePagination/TablePagination";
 import LoadingHorizontal from "../../../components/Loading/LoadingHorizontal";
 import useSortTable from "../../../Hooks/useSortTable";
 import SortButton from "../../../components/SortButton/SortButton";
 import UserAdminForm from "./UserAdminForm";
-import ModalHOC from "../../../HOC/ModalHoc";
 import {
   setBodyComponent,
   setOpen,
@@ -54,7 +52,7 @@ type Props = {};
 let timeout: ReturnType<typeof setTimeout>;
 
 export default function UserManagement({}: Props) {
-  const { arrUsers, totalRow } = useSelector(
+  const { arrUsers, totalRow, isFetching } = useSelector(
     (state: RootState) => state.userReducer
   );
 
@@ -72,46 +70,27 @@ export default function UserManagement({}: Props) {
   const userRef = useRef<null | User>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [username, setUserName] = useState("");
-  const [deletAction, setDeleteAction] = useState<boolean>(false);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [openPopUp, setOpenPopUp] = useState<boolean>(false);
-  const [idUser, setIDUser] = useState<number>(1);
-  const [editAction, setEditAction] = useState<boolean>(false);
-  const pageIndex = useRef("1");
-  const keyword = useRef("");
+  const [searchTerms, setSearchTerms] = useState("");
   const dispatch: AppDispatch = useDispatch();
 
-  const renderUserAdminForm = useCallback(() => {
-    return <UserAdminForm user={userRef.current ? userRef.current : null} />;
-  }, [userRef.current]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value, id } = e.target;
-    console.log("UserName: ", value.toLocaleLowerCase());
-    setUserName(value);
-  };
-
-  const getParamsOnUrl = () => {
-    if (searchParams.get("keyword") === null) {
-      const action = getUserPaginationAction(
-        searchParams.get("pageIndex"),
-        searchParams.get("pageSize"),
-        null
-      );
-      dispatch(action);
-    }
+  const handleSearchTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerms(e.target.value);
   };
 
   const handleSearchUser = () => {
-    const searchAction = searchUserAction(username);
-    dispatch(searchAction);
+    if (searchTerms.length > 0) {
+      dispatch(
+        getUserPaginationAction(
+          currentPage.toString(),
+          pageSize.toString(),
+          searchTerms
+        )
+      );
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const deleteAction = deleteUserAction(id);
-    dispatch(deleteAction);
-    setDeleteAction(true);
+  const handleDeleteUser = (userId: number) => {
+    dispatch(deleteUserAction(userId));
   };
 
   // onclick add and edit user
@@ -132,127 +111,175 @@ export default function UserManagement({}: Props) {
     setSearchParams({
       pageIndex: currentPage.toString(),
       pageSize: pageSize.toString(),
+      keyword: searchTerms,
     });
 
-    dispatch(
-      getUserPaginationAction(currentPage.toString(), pageSize.toString(), null)
-    );
+    if (searchTerms === "") {
+      dispatch(
+        getUserPaginationAction(
+          currentPage.toString(),
+          pageSize.toString(),
+          searchTerms
+        )
+      );
+    } else if (searchTerms.length > 0) {
+      dispatch(setIsFetching(true));
+      timeout = setTimeout(() => {
+        dispatch(
+          getUserPaginationAction(
+            currentPage.toString(),
+            pageSize.toString(),
+            searchTerms
+          )
+        );
+      }, 1000);
+    }
+
     return () => {
-      dispatch(setArrUser([]));
+      setArrUser([]);
+      if (timeout) {
+        clearTimeout(timeout);
+      }
     };
-  }, [currentPage]);
+  }, [currentPage, pageSize, searchTerms]);
 
   useEffect(() => {
-    if (arrUsers.length > 0) {
+    if (!isFetching) {
+      if (arrUsers.length === 0) {
+        setCurrentPage(1);
+      }
       setLoading(false);
     }
 
     return () => {
       setLoading(true);
     };
-  }, [arrUsers, currentPage]);
+  }, [arrUsers, isFetching]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(setIsFetching(true));
+    };
+  }, [currentPage]);
 
   return (
     <div>
-      <h3 className="tilte my-3 ">Users Management</h3>
-      <div className="addAdminPage mb-3" style={{ cursor: "pointer" }}></div>
-      <div className="row">
-        <form className="search col-lg-4">
-          <div className="input-group mb-3">
-            <input
-              className="form-control"
-              placeholder="Users Name"
-              onChange={handleChange}
-              value={username}
-            />
-            <button className="btn btn-outline-danger">Search</button>
-          </div>
-        </form>
-        <div className="table-responsive">
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                {tableHeaders.map((header) => (
-                  <th key={header.key} onClick={() => changeSort(header.key)}>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <span>{header.label}</span>
-                      <SortButton
-                        colKey={header.key}
-                        {...{
-                          sortKey,
-                          sortOrder,
-                        }}
-                      />
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <LoadingHorizontal />
-              ) : (
-                arrUsers.length > 0 &&
-                (sortedData() as User[])?.map((user: User, index: number) => {
-                  return (
-                    <tr key={index}>
-                      <td>{user?.id}</td>
-                      <td>{user?.name}</td>
-                      <td>{user?.email}</td>
-                      <td>
-                        {user?.avatar !== "" ? (
-                          <img
-                            src={user?.avatar}
-                            alt="...."
-                            style={{ height: "50px", width: "50px" }}
-                          />
-                        ) : (
-                          "No avatar"
-                        )}
-                      </td>
-                      <td>{user?.phone}</td>
-                      <td>
-                        {user?.role === "ADMIN" ? (
-                          <span className="badge rounded-pill bg-success text-white">
-                            Admin
-                          </span>
-                        ) : (
-                          <span className="badge rounded-pill bg-info text-white">
-                            User
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-primary btn-sm rounded-5 mx-1"
-                          onClick={() => handleOpenModal(user)}
-                        >
-                          <i className="fas fa-user-edit"></i>
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm rounded-5"
-                          onClick={(event: React.MouseEvent<HTMLElement>) => {
-                            handleDelete(user.id);
-                          }}
-                        >
-                          <i className="fas fa-trash-alt"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="pagination d-flex justify-content-center">
-          <TablePagination
-            totalRow={totalRow}
-            pageSize={pageSize}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
+      <h3 className="tilte my-3 ">Quản lý thông tin người dùng</h3>
+      <form>
+        <div className="admin__searchBar input-group mt-2 w-25">
+          <input
+            type="text"
+            value={searchTerms}
+            onChange={handleSearchTermsChange}
+            className="form-control position-relative"
+            placeholder="Start your search"
           />
+
+          <button
+            type="button"
+            onClick={() => setSearchTerms("")}
+            hidden={searchTerms === "" && true}
+            className="btn bg-transparent position-absolute"
+            style={{ right: "37px", zIndex: "5" }}
+          >
+            <i className="fa fa-times"></i>
+          </button>
+
+          <div className="input-group-append">
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={handleSearchUser}
+            >
+              <i className="fa fa-search"></i>
+            </button>
+          </div>
         </div>
+      </form>
+
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              {tableHeaders.map((header) => (
+                <th key={header.key} onClick={() => changeSort(header.key)}>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <span>{header.label}</span>
+                    <SortButton
+                      colKey={header.key}
+                      {...{
+                        sortKey,
+                        sortOrder,
+                      }}
+                    />
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <LoadingHorizontal />
+            ) : arrUsers.length > 0 ? (
+              (sortedData() as User[])?.map((user: User, index: number) => {
+                return (
+                  <tr key={index}>
+                    <td>{user.id}</td>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      {user.avatar !== "" ? (
+                        <img
+                          src={user?.avatar}
+                          alt="...."
+                          style={{ height: "50px", width: "50px" }}
+                        />
+                      ) : (
+                        "No avatar"
+                      )}
+                    </td>
+                    <td>{user.phone}</td>
+                    <td>
+                      {user.role === "ADMIN" ? (
+                        <span className="badge rounded-pill bg-success text-white">
+                          Admin
+                        </span>
+                      ) : (
+                        <span className="badge rounded-pill bg-info text-white">
+                          User
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-primary btn-sm rounded-5 mx-1"
+                        onClick={() => handleOpenModal(user)}
+                      >
+                        <i className="fas fa-user-edit"></i>
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm rounded-5"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        <i className="fas fa-trash-alt"></i>
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              "Không có dữ liệu"
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="pagination d-flex justify-content-center">
+        <TablePagination
+          totalRow={totalRow}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
       </div>
     </div>
   );

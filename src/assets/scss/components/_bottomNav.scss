@@ -1,0 +1,30 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #fff;
+  border-top: 1px solid rgb(235, 235, 235);
+  padding: 12px 0;
+
+  @include res-up($xs-min) {
+    display: none !important;
+  }
+
+  .btnHome {
+    img {
+      width: 25px;
+    }
+  }
+
+  button {
+    i {
+      color: #717171;
+    }
+
+    p {
+      margin: 0;
+      color: #717171;
+      font-size: 12px;
+    }
+  }
+}

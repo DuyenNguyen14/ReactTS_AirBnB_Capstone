@@ -67,7 +67,7 @@ export default function Header({}: Props) {
         {/* right section - logo */}
 
         {/* middle section - search bar */}
-        <div className="header__search-bar">
+        <div className="header__search-bar col-12 col-sm-6">
           <div className="search-bar d-flex align-items-center justify-content-between">
             <input
               type="text"

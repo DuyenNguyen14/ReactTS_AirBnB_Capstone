@@ -23,6 +23,7 @@ type UserState = {
   userInfo: User | null;
   rentedRoom: Room[];
   isSucceed: boolean;
+  isFetching: boolean;
 };
 
 const initialState: UserState = {
@@ -31,6 +32,7 @@ const initialState: UserState = {
   rentedRoom: [],
   userInfo: null,
   isSucceed: false,
+  isFetching: true,
 };
 
 const userReducer = createSlice({
@@ -52,6 +54,28 @@ const userReducer = createSlice({
     setIsSucceed: (state: UserState, action: PayloadAction<boolean>) => {
       state.isSucceed = action.payload;
     },
+    setIsFetching: (state: UserState, action: PayloadAction<boolean>) => {
+      state.isFetching = action.payload;
+    },
+    setArrUserAfterDeleted: (
+      state: UserState,
+      action: PayloadAction<number>
+    ) => {
+      const index = state.arrUsers.findIndex(
+        (user) => user.id === action.payload
+      );
+      if (index !== -1) {
+        state.arrUsers.splice(index, 1);
+      }
+    },
+    serArrUserAfterEditted: (state: UserState, action: PayloadAction<User>) => {
+      const index = state.arrUsers.findIndex(
+        (user) => user.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.arrUsers[index] = { ...action.payload };
+      }
+    },
   },
 });
 
@@ -61,6 +85,9 @@ export const {
   getRentedRoom,
   setUserInfo,
   setIsSucceed,
+  setIsFetching,
+  setArrUserAfterDeleted,
+  serArrUserAfterEditted,
 } = userReducer.actions;
 
 export default userReducer.reducer;
@@ -89,8 +116,9 @@ export const editUserAction = (userId: number, userInfo: User) => {
       });
       console.log(result.data.content);
       dispatch(setUserInfo(result.data.content));
-      // setStoreJSON(USER_LOGIN, result.data.content);
       dispatch(setIsSucceed(true));
+      // nếu hành động xảy ra trong trang admin
+      dispatch(serArrUserAfterEditted(result.data.content));
     } catch (errors: any) {
       Swal.fire({
         icon: "error",
@@ -105,17 +133,16 @@ export const editUserAction = (userId: number, userInfo: User) => {
 export const getUserPaginationAction = (
   pageIndex: string | null,
   pageSize: string | null,
-  keyword?: string | null
+  keyword: string | null
 ) => {
   return async (dispatch: AppDispatch) => {
     try {
-      if (keyword === null) {
-        const result = await http.get(
-          `/users/phan-trang-tim-kiem?pageIndex=${pageIndex}&pageSize=${pageSize}`
-        );
-        dispatch(setArrUser(result.data.content.data));
-        dispatch(setTotalRow(result.data.content.totalRow));
-      }
+      const result = await http.get(
+        `/users/phan-trang-tim-kiem?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}`
+      );
+      dispatch(setArrUser(result.data.content.data));
+      dispatch(setTotalRow(result.data.content.totalRow));
+      dispatch(setIsFetching(false));
     } catch (err) {
       console.log(err);
     }
@@ -124,7 +151,7 @@ export const getUserPaginationAction = (
 
 //delete
 export const deleteUserAction = (userID: number) => {
-  return async () => {
+  return async (dispatch: AppDispatch) => {
     try {
       const result = await http.delete(`/users?id=${userID}`);
       Swal.fire({
@@ -132,10 +159,11 @@ export const deleteUserAction = (userID: number) => {
         icon: "success",
         confirmButtonColor: "#44c020",
       });
+      dispatch(setArrUserAfterDeleted(userID));
     } catch (err) {
       console.log(err);
       Swal.fire({
-        title: "Xoá thất bại!",
+        title: "Không thể xoá người dùng này!",
         icon: "error",
         confirmButtonColor: "#44c020",
       });
@@ -184,17 +212,3 @@ export const uploadAvatarAction = (data: FormData) => {
     }
   };
 };
-//search
-export const searchUserAction = (userName: string) => {
-  return async (dispatch: AppDispatch) => {
-    try {
-      const result = await http.get(`/users/search/${userName}`);
-      console.log(result.data.content);
-      dispatch(setArrUser(result.data.content));
-      dispatch(setTotalRow(result.data.content.length));
-    } catch (err) {
-      console.log(err);
-    }
-  };
-};
-//Call api getProfile
