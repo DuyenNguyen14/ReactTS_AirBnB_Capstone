@@ -13,7 +13,7 @@ import { AppDispatch, RootState } from "../../../redux/configStore";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { amenitiesNames, getAmenities } from "../../../util/roomUtil";
 import {
-  getLocationsApi,
+  getAllLocations,
   Location,
 } from "../../../redux/reducers/locationsReducer";
 import { Button } from "antd";
@@ -159,12 +159,12 @@ export default function RoomAdminForm({ room }: Props) {
         .required("Không được bỏ trống trường này!")
         .min(50, "Mô tả phải chứa hơn 50 kí tự!"),
       hinhAnh: Yup.mixed().required("Vui lòng thêm hình ảnh cho phòng!"),
-      // maViTri: Yup.number().min(1, "Không được bỏ trống trường này!"),
     }),
     onSubmit: async (values) => {
+      console.log(values);
+
       if (!room) {
         values.maViTri = locationId;
-        console.log(values);
         await dispatch(addRoomApi(values));
       }
       if (room) {
@@ -185,7 +185,7 @@ export default function RoomAdminForm({ room }: Props) {
   const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getLocationsApi());
+    dispatch(getAllLocations());
   }, []);
 
   useEffect(() => {
@@ -199,7 +199,7 @@ export default function RoomAdminForm({ room }: Props) {
   }, [isSuccessful]);
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} autoComplete="off">
       <div className="container-sm">
         <div className="room-title">
           <h3 className="mb-0">
@@ -300,7 +300,6 @@ export default function RoomAdminForm({ room }: Props) {
                 Giá tiền
               </label>
               <input
-                required
                 type="number"
                 className="form-control w-75"
                 placeholder="Đơn vị: USD"

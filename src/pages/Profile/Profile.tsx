@@ -54,7 +54,6 @@ export default function Profile({}: Props) {
 
   const handleUploadAvatar = () => {
     if (avatarRef.current.files[0]) {
-      console.log(avatarRef.current.files[0]);
       const formData = new FormData();
       formData.append("formFile", avatarRef.current.files[0]);
       dispatch(uploadAvatarAction(formData));

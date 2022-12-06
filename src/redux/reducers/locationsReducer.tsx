@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import Swal from "sweetalert2";
 import { createKeywordTypeNode } from "typescript";
 import { http } from "../../util/setting";
 import { AppDispatch } from "../configStore";
@@ -8,23 +9,23 @@ export interface Location {
   tenViTri: string;
   tinhThanh: string;
   quocGia: string;
-  hinhAnh: string;
+  hinhAnh?: string;
 }
 
 type InitialState = {
   arrLocations: Location[];
   location: Location;
-  arrLocationPageIndex: Location[];
-  totalRow: number | null;
+  totalRow: number;
   hasMore: boolean;
+  isFetching: boolean;
 };
 
 const initialState: InitialState = {
   arrLocations: [],
   location: {} as Location,
-  arrLocationPageIndex: [],
-  totalRow: null,
+  totalRow: 0,
   hasMore: false,
+  isFetching: true,
 };
 
 const locationsReducer = createSlice({
@@ -37,39 +38,57 @@ const locationsReducer = createSlice({
     ) => {
       state.arrLocations = action.payload;
     },
-    setLocationById: (state: InitialState, action: PayloadAction<Location>) => {
+    setLocation: (state: InitialState, action: PayloadAction<Location>) => {
       state.location = action.payload;
     },
-    setArrLocationByPageIndex: (
-      state: InitialState,
-      action: PayloadAction<Location[]>
-    ) => {
-      state.arrLocationPageIndex = action.payload;
-    },
-    setTotalRow: (
-      state: InitialState,
-      action: PayloadAction<number | null>
-    ) => {
+    setTotalRow: (state: InitialState, action: PayloadAction<number>) => {
       state.totalRow = action.payload;
     },
     setHasMore: (state: InitialState, action: PayloadAction<boolean>) => {
       state.hasMore = action.payload;
+    },
+    setIsFetching: (state: InitialState, action: PayloadAction<boolean>) => {
+      state.isFetching = action.payload;
+    },
+    setArrLocationAfterEditted: (
+      state: InitialState,
+      action: PayloadAction<Location>
+    ) => {
+      const index = state.arrLocations.findIndex(
+        (location) => location.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.arrLocations[index] = { ...action.payload };
+      }
+    },
+    setArrLocationAfterAdded: (
+      state: InitialState,
+      action: PayloadAction<Location>
+    ) => {
+      const index = state.arrLocations.findIndex(
+        (location) => location.id === action.payload.id
+      );
+      if (index === -1) {
+        state.arrLocations.push(action.payload);
+      }
     },
   },
 });
 
 export const {
   setArrLocations,
-  setLocationById,
-  setArrLocationByPageIndex,
+  setLocation,
   setTotalRow,
   setHasMore,
+  setIsFetching,
+  setArrLocationAfterEditted,
+  setArrLocationAfterAdded,
 } = locationsReducer.actions;
 
 export default locationsReducer.reducer;
 
 // call api
-export const getLocationsApi = () => {
+export const getAllLocations = () => {
   return async (dispatch: AppDispatch) => {
     try {
       const result = await http.get("/vi-tri");
@@ -84,7 +103,7 @@ export const getLocationByIdApi = (locationId: string | undefined | number) => {
   return async (dispatch: AppDispatch) => {
     try {
       const result = await http.get(`/vi-tri/${locationId}`);
-      dispatch(setLocationById(result.data.content));
+      dispatch(setLocation(result.data.content));
     } catch (err) {
       console.log(err);
     }
@@ -99,12 +118,11 @@ export const getLocationPaginationApi = (
   return async (dispatch: AppDispatch) => {
     try {
       const result = await http.get(
-        `/vi-tri/phan-trang-tim-kiem?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${
-          !keyword ? "" : keyword
-        }`
+        `/vi-tri/phan-trang-tim-kiem?pageIndex=${pageIndex}&pageSize=${pageSize}&keyword=${keyword}`
       );
       dispatch(setArrLocations(result.data.content.data));
       dispatch(setTotalRow(result.data.content.totalRow));
+      dispatch(setIsFetching(false));
     } catch (err) {
       console.log(err);
     }
@@ -119,6 +137,68 @@ export const deleteLocationApi = (viTri: number) => {
       console.log(result.data.content);
     } catch (err) {
       console.log(err);
+    }
+  };
+};
+
+export const uploadLocationImg = (data: FormData, locationId: number) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await http.post(
+        `vi-tri/upload-hinh-vitri?maViTri=${locationId}`,
+        data
+      );
+      Swal.fire({
+        title: "Upload hình thành công!",
+        icon: "success",
+      });
+      dispatch(setLocation(result.data.content));
+      dispatch(setArrLocationAfterEditted(result.data.content));
+    } catch (err) {
+      console.log(err);
+      Swal.fire({
+        title: "Upload hình thất bại!",
+        icon: "error",
+      });
+    }
+  };
+};
+
+export const editLocation = (locationId: number, locationInfo: Location) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await http.put(`vi-tri/${locationId}`, locationInfo);
+      Swal.fire({
+        title: "Sửa thông tin thành công!",
+        icon: "success",
+      });
+      dispatch(setArrLocationAfterEditted(result.data.content));
+    } catch (err) {
+      console.log(err);
+      Swal.fire({
+        title: "Không thể sửa thông tin!",
+        icon: "error",
+      });
+    }
+  };
+};
+
+export const addLocation = (locationInfo: Location) => {
+  return async (dispatch: AppDispatch) => {
+    try {
+      const result = await http.post("vi-tri", locationInfo);
+      Swal.fire({
+        title: "Thêm mới thành công!",
+        icon: "success",
+      });
+      dispatch(setArrLocationAfterAdded(result.data.content));
+    } catch (err) {
+      console.log(err);
+      Swal.fire({
+        title: "Không thể thêm!",
+        icon: "error",
+        html: "Vui lòng kiểm tra lại thông tin!",
+      });
     }
   };
 };

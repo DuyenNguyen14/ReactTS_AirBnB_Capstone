@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../redux/configStore";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import {
-  getLocationsApi,
+  getAllLocations,
   Location,
 } from "../../../redux/reducers/locationsReducer";
 import SortButton from "../../../components/SortButton/SortButton";
@@ -173,7 +173,7 @@ export default function RoomManagement({}: Props) {
   }, [currentPage]);
 
   useEffect(() => {
-    dispatch(getLocationsApi());
+    dispatch(getAllLocations());
   }, []);
 
   return (

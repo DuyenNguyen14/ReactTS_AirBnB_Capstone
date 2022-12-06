@@ -69,7 +69,6 @@ const roomReducer = createSlice({
       const index = state.arrRooms.findIndex(
         (room) => room.id === action.payload.id
       );
-      console.log(index);
       if (index === -1) {
         state.arrRooms.push(action.payload);
       }

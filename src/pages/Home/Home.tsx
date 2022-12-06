@@ -63,14 +63,14 @@ export default function Home({}: Props) {
   const location = useLocationPathname();
 
   useEffect(() => {
-    dispatch(getLocationPaginationApi(pageIndex, pageSize, null));
+    dispatch(getLocationPaginationApi(pageIndex, pageSize, ""));
   }, [pageIndex, pageSize]);
 
   useEffect(() => {
     return () => {
       console.log("clear");
       dispatch(setArrLocations([]));
-      dispatch(setTotalRow(null));
+      dispatch(setTotalRow(0));
     };
   }, []);
 
