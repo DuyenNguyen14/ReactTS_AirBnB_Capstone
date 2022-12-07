@@ -44,6 +44,7 @@ export default function LocationImgForm({ location }: Props) {
           src={selectedImg ? (selectedImg as string) : location.hinhAnh}
           alt="Hình vị trí"
           hidden={location.hinhAnh !== "" ? false : selectedImg ? false : true}
+          style={{ height: "350px" }}
         />
 
         <div className="d-flex mt-2">

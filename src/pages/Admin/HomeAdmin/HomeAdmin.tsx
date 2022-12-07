@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import Swal from "sweetalert2";
 import { User } from "../../../redux/reducers/userReducer";
 import { getStoreJSON, handleLogout } from "../../../util/setting";
-import AdminBookingHistory from "./AdminBookingHistory";
 
 type Props = {};
 
@@ -51,9 +50,6 @@ export default function HomeAdmin({}: Props) {
               Log out
             </button>
           </div>
-        </div>
-        <div className="col-6 col-lg-7">
-          <AdminBookingHistory />
         </div>
       </div>
     </>

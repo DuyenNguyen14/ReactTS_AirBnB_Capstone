@@ -103,9 +103,7 @@ export default function LocationManagement({}: Props) {
   };
 
   const handleDelete = (id: number) => {
-    const deleteAction = deleteLocationApi(id);
-    dispatch(deleteAction);
-    setReload(true);
+    dispatch(deleteLocationApi(id));
   };
 
   useEffect(() => {

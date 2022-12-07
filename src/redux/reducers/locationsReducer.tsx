@@ -72,6 +72,17 @@ const locationsReducer = createSlice({
         state.arrLocations.push(action.payload);
       }
     },
+    setArrLocationAfterDeleted: (
+      state: InitialState,
+      action: PayloadAction<number>
+    ) => {
+      const index = state.arrLocations.findIndex(
+        (location) => location.id === action.payload
+      );
+      if (index !== -1) {
+        state.arrLocations.splice(index, 1);
+      }
+    },
   },
 });
 
@@ -83,6 +94,7 @@ export const {
   setIsFetching,
   setArrLocationAfterEditted,
   setArrLocationAfterAdded,
+  setArrLocationAfterDeleted,
 } = locationsReducer.actions;
 
 export default locationsReducer.reducer;
@@ -129,14 +141,22 @@ export const getLocationPaginationApi = (
   };
 };
 
-export const deleteLocationApi = (viTri: number) => {
-  return async () => {
+export const deleteLocationApi = (locationId: number) => {
+  return async (dispatch: AppDispatch) => {
     try {
-      alert("Delete Successfullt !!");
-      const result = await http.delete(`/vi-tri/${viTri}`);
+      const result = await http.delete(`vi-tri/${locationId}`);
       console.log(result.data.content);
+      Swal.fire({
+        title: "Xoá thành công!",
+        icon: "success",
+      });
+      dispatch(setArrLocationAfterDeleted(locationId));
     } catch (err) {
       console.log(err);
+      Swal.fire({
+        title: "Xoá thất bại!",
+        icon: "error",
+      });
     }
   };
 };
