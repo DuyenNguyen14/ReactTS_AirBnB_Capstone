@@ -1,6 +1,4 @@
-import React, { ChangeEvent, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../redux/configStore";
+import { ChangeEvent, useRef, useState } from "react";
 
 type Props = {};
 
@@ -8,8 +6,6 @@ export default function useUploadImage() {
   const [selectedImg, setSelectedImg] = useState<string | ArrayBuffer | null>();
   const [hideBtn, setHideBtn] = useState(true);
   const imgRef = useRef<any>();
-
-  const dispatch: AppDispatch = useDispatch();
 
   let reader = new FileReader();
 
