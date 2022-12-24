@@ -12,14 +12,9 @@
   padding: 1.5em;
   border: 1px solid rgb(221, 221, 221);
   border-radius: 10px;
-
-  //   @include res-down($lg-max) {
-  //     width: 308px;
-  //   }
-
-  //   @include res-down($md-max) {
-  //     width: 253px;
-  //   }
+  position: -webkit-sticky;
+  position: sticky;
+  top: 20px;
 
   .booking-box__title {
     @include text($text-xs, $text-bold);

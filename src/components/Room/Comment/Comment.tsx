@@ -139,9 +139,6 @@ export default function Comment({}: Props) {
       console.log("render");
       setUserList((prevState) => _.uniqBy([...prevState, userInfo], "id"));
     }
-    // return () => {
-    //   setUserList([]);
-    // };
   }, [userInfo, userIds]);
 
   useEffect(() => {
@@ -156,12 +153,20 @@ export default function Comment({}: Props) {
     <>
       <div className="comment--colums row">
         <h3 className="d-flex">
-          {`Đánh giá (${roomComments.length})`} -{" "}
-          {Math.round(
-            roomComments.reduce((total, cmt) => total + cmt.saoBinhLuan, 0) /
-              roomComments.length
+          {`Đánh giá (${roomComments.length})`}
+          {roomComments.length > 0 && (
+            <span>
+              {" "}
+              -{" "}
+              {Math.round(
+                roomComments.reduce(
+                  (total, cmt) => total + cmt.saoBinhLuan,
+                  0
+                ) / roomComments.length
+              )}
+              <i className="fa fa-star"></i>
+            </span>
           )}
-          <i className="fa fa-star ms-3"></i>
         </h3>
         {renderRoomComments()}
         {roomComments.length > 4 ? (
